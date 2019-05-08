@@ -22,6 +22,13 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     output['N_CUTOFFS'] = 0
     return output
 
+# implement minimax algorithm here
+def minimax():
+    pass
+
+# implement alpha-beta pruning here
+def alphabeta_pruning():
+    pass
 
 def makeMove(currentState, currentRemark, timelimit=10):
     # Compute the new state for a move.
@@ -60,14 +67,12 @@ def prepare(player2Nickname):
     output = {'CURRENT_STATE_STATIC_EVAL': None, 'N_STATES_EXPANDED': 0, 'N_STATIC_EVALS': 0, 'N_CUTOFFS': 0}
     pass
 
-# Implement minimax algorithm here
 def basicStaticEval(state):
     '''Use the simple method for state evaluation described in the spec.
     This is typically used in parameterized_minimax calls to verify
     that minimax and alpha-beta pruning work correctly.'''
     pass
 
-# Implement alpha-beta pruning here
 def staticEval(state):
     '''Compute a more thorough static evaluation of the given state.
     This is intended for normal competitive play.  How you design this

@@ -76,7 +76,7 @@ def parse(bs): # bs is board string
   rs9 = bs.split("\n")
   rs8 = rs9[1:] # eliminate the empty first item.
   for iy in range(8):
-    rss = rs8[iy].split(' ');
+    rss = rs8[iy].split(' ')
     for jx in range(8):
       b[iy][jx] = INIT_TO_CODE[rss[jx]]
   return b
@@ -96,7 +96,7 @@ class BC_state:
     def __init__(self, old_board=INITIAL, whose_move=WHITE):
         new_board = [r[:] for r in old_board]  # Deeply copy the board.
         self.board = new_board
-        self.whose_move = whose_move;
+        self.whose_move = whose_move
 
     def __repr__(self): # Produce an ASCII display of the state.
         s = ''

@@ -5,11 +5,21 @@ The beginnings of an agent that might someday play Baroque Chess.
 
 import BC_state_etc as BC
 
-def parameterized_minimax(currentState, alphaBeta=False, ply=3,\
-    useBasicStaticEval=True, useZobristHashing=False):
-  '''Implement this testing function for your agent's basic
-  capabilities here.'''
-  pass
+global output
+
+def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
+    '''Implement this testing function for your agent's basic
+    capabilities here.'''
+    if useBasicStaticEval:
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState)  # implement minimax algorithm here
+    elif alphaBeta:
+        pass
+    elif useZobristHashing:
+        pass
+    output['N_STATES_EXPANDED'] = 0  # get states from minimax algorithm
+    output['N_STATIC_EVALS'] = 0
+    output['N_CUTOFFS'] = 0
+    return output
 
 
 def makeMove(currentState, currentRemark, timelimit=10):
@@ -34,22 +44,28 @@ def makeMove(currentState, currentRemark, timelimit=10):
     return [[move, newState], newRemark]
 
 def nickname():
-    return "Newman"
+    return "Gary"
 
 def introduce():
-    return "I'm Newman Barry, a newbie Baroque Chess agent."
+    return '''I'm Gary Exasparov, a \"champion\" Baroque Chess agent.
+    I was created by Jeffrey Gao (jgao117) and Ben Yan (yanb3).'''
 
 def prepare(player2Nickname):
     ''' Here the game master will give your agent the nickname of
     the opponent agent, in case your agent can use it in some of
     the dialog responses.  Other than that, this function can be
     used for initializing data structures, if needed.'''
+    # initialize data structures and fields here
+    # let agent know if player is white or black
+    output = {'CURRENT_STATE_STATIC_EVAL': None, 'N_STATES_EXPANDED': 0, 'N_STATIC_EVALS': 0, 'N_CUTOFFS': 0}
     pass
 
 def basicStaticEval(state):
     '''Use the simple method for state evaluation described in the spec.
     This is typically used in parameterized_minimax calls to verify
     that minimax and alpha-beta pruning work correctly.'''
+    # implement minimax algorithm here
+    list_of_pieces = state.parse()
     pass
 
 def staticEval(state):

@@ -6,11 +6,27 @@ The beginnings of an agent that might someday play Baroque Chess.
 import BC_state_etc as BC
 
 global output
+pieces = ['p','l','i','w','k','c','f']  # pieces
+operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],
+             'l':[(2,0),(0,2),(-2,0),(0,-2)],
+             'i':[()],
+             'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],
+             'k':[(1,1),(1,-1),(-1,1),(-1,-1)],
+             'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],
+             'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]}
 
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
     board_list = BC.parse(currentState.board)  # list of current board positions in row-major order
+
+    for row in range(8):
+        for col in range(8):
+            if board_list[row][col] is not '-':
+
+
+
+
     if useBasicStaticEval:
         output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState)  # implement minimax algorithm here
     elif alphaBeta:
@@ -59,11 +75,14 @@ def introduce():
     I was created by Jeffrey Gao (jgao117) and Ben Yan (yanb3).'''
 
 # initialize data structures and fields here
-def prepare(player2Nickname):
+def prepare(player2Nickname="My Dear Opponent", playWhite=True):
     ''' Here the game master will give your agent the nickname of
     the opponent agent, in case your agent can use it in some of
     the dialog responses.  Other than that, this function can be
     used for initializing data structures, if needed.'''
+    if playWhite:
+        for i in range(7):
+            pieces[i] = pieces[i].upper()
     output = {'CURRENT_STATE_STATIC_EVAL': None, 'N_STATES_EXPANDED': 0, 'N_STATIC_EVALS': 0, 'N_CUTOFFS': 0}
     pass
 

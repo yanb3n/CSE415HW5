@@ -15,20 +15,31 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn
              'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #coordinator
              'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]} #freezer
 
+
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
     board_list = BC.parse(currentState.board)  # list of current board positions in row-major order
-
+    possible_moves = []
     for row in range(8):
         for col in range(8):
+            row_temp = row
+            col_temp = col
             if board_list[row][col] is not '-':
+                current_ops = operators[board_list[row][col].lower()]
+                for op in current_ops:
+                    while can_move(row_temp, col_temp, op, board_list):
+                        row_temp += op[0]
+                        col_temp += op[1]
+                        possible_moves.append([row_temp, col_temp])
 
-
+    # generate tree
+    # run minimax on tree
+    #   while running minimax do static eval on leaf node (V value)
 
 
     if useBasicStaticEval:
-        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState)  # implement minimax algorithm here
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState, board_list)  # implement minimax algorithm
     elif alphaBeta:
         pass  # temporary
     elif useZobristHashing:
@@ -37,6 +48,11 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     output['N_STATIC_EVALS'] = 0
     output['N_CUTOFFS'] = 0
     return output
+
+# check if piece can perform legal move
+def can_move(row, col, op, board_list):
+    return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
+            and (col + op[1] < 8) and (board_list[row + op[0]][col + op[1]] == '-'))
 
 # implement minimax algorithm here
 def minimax():
@@ -86,11 +102,18 @@ def prepare(player2Nickname="My Dear Opponent", playWhite=True):
     output = {'CURRENT_STATE_STATIC_EVAL': None, 'N_STATES_EXPANDED': 0, 'N_STATIC_EVALS': 0, 'N_CUTOFFS': 0}
     pass
 
-def basicStaticEval(state):
+def basicStaticEval(state, board_list):
     '''Use the simple method for state evaluation described in the spec.
     This is typically used in parameterized_minimax calls to verify
     that minimax and alpha-beta pruning work correctly.'''
-    pass
+    values = {'P': 1, 'L': 2, 'I': 2, 'W': 2, 'K': 100, 'C': 2, 'F': 2,
+              'p': -1, 'l': -2, 'i': -2, 'w': -2, 'k': -100, 'c': -2, 'f': -2}
+    sum = 0
+    for row in range(8):
+        for col in range(8):
+            if board_list[row][col] != '-':
+                sum += values[board_list[row][col]]
+    return sum
 
 def staticEval(state):
     '''Compute a more thorough static evaluation of the given state.

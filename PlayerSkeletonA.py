@@ -7,13 +7,13 @@ import BC_state_etc as BC
 
 global output
 pieces = ['p','l','i','w','k','c','f']  # pieces
-operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],
-             'l':[(2,0),(0,2),(-2,0),(0,-2)],
-             'i':[()],
-             'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],
-             'k':[(1,1),(1,-1),(-1,1),(-1,-1)],
-             'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],
-             'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]}
+operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn 
+             'l':[(2,0),(0,2),(-2,0),(0,-2)], #long leaper
+             'i':[()], #imitater 
+             'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #withdrawer (queen)
+             'k':[(1,1),(1,-1),(-1,1),(-1,-1)], #king
+             'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #coordinator
+             'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]} #freezer
 
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic

@@ -7,9 +7,10 @@ import BC_state_etc as BC
 
 global output
 pieces = ['p','l','i','w','k','c','f']  # pieces
+pieces_2 = ['P','L','I','W','K','C','F'] 
 operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn 
              'l':[(2,0),(0,2),(-2,0),(0,-2)], #long leaper
-             'i':[()], #imitater 
+             'i':[()], #imitator 
              'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #withdrawer (queen)
              'k':[(1,1),(1,-1),(-1,1),(-1,-1)], #king
              'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #coordinator
@@ -96,9 +97,10 @@ def prepare(player2Nickname="My Dear Opponent", playWhite=True):
     the opponent agent, in case your agent can use it in some of
     the dialog responses.  Other than that, this function can be
     used for initializing data structures, if needed.'''
-    if playWhite:
+    '''if playWhite:
         for i in range(7):
             pieces[i] = pieces[i].upper()
+    '''
     output = {'CURRENT_STATE_STATIC_EVAL': None, 'N_STATES_EXPANDED': 0, 'N_STATIC_EVALS': 0, 'N_CUTOFFS': 0}
     pass
 

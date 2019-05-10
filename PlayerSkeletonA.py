@@ -6,8 +6,27 @@ The beginnings of an agent that might someday play Baroque Chess.
 import BC_state_etc as BC
 
 global output
-pieces = ['p','l','i','w','k','c','f']  # pieces
-pieces_2 = ['P','L','I','W','K','C','F'] 
+WHITE = 0
+BLACK = 1
+PAWN = 0
+LONG_LEAPER = 2
+IMITATOR = 3
+WITHDRAWER = 4
+KING = 5
+COORDINATOR = 6
+FREEZER = 7
+pieces = [['P','L','I','W','K','C','F'],['p','l','i','w','k','c','f']]  # pieces
+
+# for chess board notation
+A = 0
+B = 1
+C = 2
+D = 3 
+E = 4
+F = 5
+G = 6
+H = 7
+
 operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn 
              'l':[(2,0),(0,2),(-2,0),(0,-2)], #long leaper
              'i':[()], #imitator 
@@ -50,6 +69,9 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     output['N_CUTOFFS'] = 0
     return output
 
+def generate_moves(currentState):
+    return 0
+
 # check if piece can perform legal move
 def can_move(row, col, op, board_list):
     return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
@@ -80,7 +102,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
     move = ((6, 4), (3, 4))
 
     # Make up a new remark
-    newRemark = "I'll think harder in some future game. Here's my move"
+    newRemark = "I END MY TURN."
 
     return [[move, newState], newRemark]
 
@@ -123,4 +145,3 @@ def staticEval(state):
     function could have a significant impact on your player's ability
     to win games.'''
     pass
-

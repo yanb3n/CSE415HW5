@@ -87,7 +87,7 @@ def generate_moves(currentState):
                         new_board_state = board_list.copy()
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
-                        possible_moves.append([(starting_square, ending_square), new_board_state])
+                        possible_moves.append([[starting_square, ending_square], new_board_state])
     return possible_moves
 
 # check if piece can perform legal move

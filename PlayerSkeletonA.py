@@ -44,16 +44,16 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     else:
         bestMove = minimax(ply, currentState)[1]
     if useBasicStaticEval:
-        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState, board_list)  # implement minimax algorithm
     elif alphaBeta:
         pass  # temporary
     elif useZobristHashing:
         pass  # temporary
-    output['N_STATES_EXPANDED'] = 0
+    output['N_STATES_EXPANDED'] = 0  # get states from minimax algorithm
     output['N_STATIC_EVALS'] = 0
     output['N_CUTOFFS'] = 0
     return output
-
+    '''
 
 def next_to_freezer(board_list, row, col):
     for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
@@ -71,26 +71,34 @@ def generate_moves(currentState):
         for col in range(8):
             row_temp = row
             col_temp = col
-            starting_square = index_to_notation(row_temp, col_temp)
+            #starting_square = index_to_notation(row_temp, col_temp)
             piece = board_list[row][col]
             if (board_list[row][col] != '-'
-                and piece.lower() != 'k'
+                and piece.lower() != 'k' 
                 and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
                 current_ops = operators[board_list[row][col].lower()]
-                for op1 in current_ops:
-                    while can_move(row_temp, col_temp, op1, board_list):
-                        row_temp += op1[0]
-                        col_temp += op1[1]
-                        ending_square = index_to_notation(row_temp, col_temp)
+                for op in current_ops:
+                    while can_move(row_temp, col_temp, op, board_list):
+                        row_temp += op[0]
+                        col_temp += op[1]
+                        #ending_square = index_to_notation(row_temp, col_temp)
                         new_board_state = board_list.copy()
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
                         if piece.lower() == 'p':
-                            for op2 in current_ops:
-                                if pincer_capturable(row, col, op2, board_list):
-                                    return 'fasle'
-                        possible_moves.append([[((row, col),(row_temp, col_temp)), new_board_state],"lmao"])
+                            for op_cap in current_ops:
+                                if pincer_capturable(row, col, op_cap, board_list):
+                                    new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
+                        elif piece.lower() == 'l':
+                            if long_leaper_capturable(row, col, op_cap, board_list):
+                                new_board_state[row + op[0] / 2][col + op[1] / 2] = '-'
+                        elif piece.lower() == 'w':
+                            if withdrawer_capturable(row, col, op, board_list):
+                                new_board_state[row - op[0]][col - op[1]] = '-'
+                        elif piece.lower() == 'c':
+                            return "fml"
+                        possible_moves.append([[((row, col),(row_temp, col_temp)), BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
     return possible_moves
 
 # check if piece can perform legal move
@@ -98,12 +106,31 @@ def can_move(row, col, op, board_list):
     return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
             and (col + op[1] < 8) and (board_list[row + op[0]][col + op[1]] == '-'))
 
+# check if coordinator captures
+def coordinator_capturable(row, col, op, board_list):
+    for i in range(8):
+        for j in range(8):
+            if board_list[i][j] 
+
+# check if withdrawer capture
+def withdrawer_capturable(row, col, op, board_list):
+     return (board_list[row][col].isupper() != board_list[row - op[0]][col - op[1]].isupper())
+
+
+# check if pincer move causes captures
 def pincer_capturable(row, col, op, board_list):
     new_row = row + 2*op[0]
     new_col = col + 2*op[1]
     return ((new_row >= 0) and (new_row < 8) and (new_col >= 0)
-            and (new_col < 8) and (board_list[new_row][new_col] != '-')
-            and (board_list[row][col].isupper() == board_list[new_row][new_col].isupper()))
+            and (new_col < 8) and (board_list[new_row][new_col] != '-') 
+            and (board_list[row][col].isupper() == board_list[new_row][new_col].isupper())
+            and board_list[row][col].isupper() != board_list[row + op[0]][col + op[1]].isupper())
+
+# check if leaper move captures
+def long_leaper_capturable(row, col, op, board_list):
+    new_row = row + op[0] / 2
+    new_col = col + op[1] / 2
+    return (board_list[row][col].isupper() != board_list[new_row][new_col].isupper())
 
 # Returns a list of form [[old_spot, new_spot], newState]
 def minimax(ply, currentState):

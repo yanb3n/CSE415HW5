@@ -89,8 +89,11 @@ def generate_moves(currentState):
                         new_board_state = board_list.copy()
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
-                        #if 
-                        possible_moves.append([(starting_square, ending_square), new_board_state])
+                        if piece.lower() is 'p':
+                            for op in current_ops:
+                                if op[0] is 'z':
+                                    return idk
+                        possible_moves.append([[(starting_square, ending_square), new_board_state],"lmao"])
     return possible_moves
 
 # check if piece can perform legal move
@@ -98,6 +101,7 @@ def can_move(row, col, op, board_list):
     return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
             and (col + op[1] < 8) and (board_list[row + op[0]][col + op[1]] == '-'))
 
+def pincer_capture(row, col, op, board_list):
 
 # Returns a list of form [[old_spot, new_spot], newState]
 def minimax(ply, currentState):

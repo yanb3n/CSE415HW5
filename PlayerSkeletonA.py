@@ -73,7 +73,9 @@ def next_to_freezer(board_list, row, col):
     for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
         if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
             and (col + op[1] < 8)):
-            if 
+            if board_list[row + op[0]][col + op[0]]:
+                return True
+    return False
 
 
 

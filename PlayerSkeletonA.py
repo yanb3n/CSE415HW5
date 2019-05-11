@@ -87,9 +87,32 @@ def can_move(row, col, op, board_list):
     return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
             and (col + op[1] < 8) and (board_list[row + op[0]][col + op[1]] == '-'))
 
-# implement minimax algorithm here
-def minimax():
-    pass
+
+# Returns a list of form [[old_spot, new_spot], newState]
+def minimax(ply, currentState):
+    if ply == 0:
+        return [[], currentState]
+    newMoves = generate_moves(currentState)
+    newMove = newMoves[0]
+    if currentState.whose_move == WHITE:
+        bestMove = float('-inf')
+        for i in range(newMoves):
+            newState = BC.BC_state(newMoves[i][1], BLACK)
+            newValue = basicStaticEval(minimax(ply - 1, newState)[1])
+            if newValue > bestMove:
+                bestMove = newValue
+                newMove = newMoves[i]
+        return newMove
+    else:
+        bestMove = float('inf')
+        for i in range(newMoves):
+            newState = BC.BC_state(newMoves[i][1], WHITE)
+            newValue = basicStaticEval(minimax(ply - 1, newState)[1])
+            if newValue > bestMove:
+                bestMove = newValue
+                newMove = newMoves[i]
+        return newMove
+
 
 # implement alpha-beta pruning here
 def alphabeta_pruning():
@@ -136,13 +159,14 @@ def prepare(player2Nickname="My Dear Opponent", playWhite=True):
     output = {'CURRENT_STATE_STATIC_EVAL': None, 'N_STATES_EXPANDED': 0, 'N_STATIC_EVALS': 0, 'N_CUTOFFS': 0}
     pass
 
-def basicStaticEval(state, board_list):
+def basicStaticEval(state):
     '''Use the simple method for state evaluation described in the spec.
     This is typically used in parameterized_minimax calls to verify
     that minimax and alpha-beta pruning work correctly.'''
     values = {'P': 1, 'L': 2, 'I': 2, 'W': 2, 'K': 100, 'C': 2, 'F': 2,
               'p': -1, 'l': -2, 'i': -2, 'w': -2, 'k': -100, 'c': -2, 'f': -2}
     sum = 0
+    board_list = state.board
     for row in range(8):
         for col in range(8):
             if board_list[row][col] != '-':

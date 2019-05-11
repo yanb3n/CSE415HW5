@@ -27,22 +27,25 @@ f = 5
 g = 6
 h = 7
 
-operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
-             'l':[(2,0),(0,2),(-2,0),(0,-2)],  # long leaper
-             'i':[()],  # imitator
-             'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # withdrawer (queen)
-             'k':[(1,1),(1,-1),(-1,1),(-1,-1)],  # king
-             'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # coordinator
-             'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]}  # freezer
+operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn
+             'l':[(2,0),(0,2),(-2,0),(0,-2)], #long leaper
+             'i':[()], #imitator
+             'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #withdrawer (queen)
+             'k':[(1,1),(1,-1),(-1,1),(-1,-1)], #king
+             'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #coordinator
+             'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]} #freezer
 
 
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
-    if alphaBeta:
-        bestMove = alphabeta_pruning(ply, currentState, float('-inf'), float('inf'))[0]
-    else:
-        bestMove = minimax(ply, currentState)[1]
+
+
+    # generate tree
+    # run minimax on tree
+    #   while running minimax do static eval on leaf node (V value)
+
+    '''
     if useBasicStaticEval:
         output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState, board_list)  # implement minimax algorithm
     elif alphaBeta:
@@ -71,34 +74,26 @@ def generate_moves(currentState):
         for col in range(8):
             row_temp = row
             col_temp = col
-            #starting_square = index_to_notation(row_temp, col_temp)
+            starting_square = index_to_notation(row_temp, col_temp)
             piece = board_list[row][col]
             if (board_list[row][col] != '-'
                 and piece.lower() != 'k' 
                 and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
                 current_ops = operators[board_list[row][col].lower()]
-                for op in current_ops:
-                    while can_move(row_temp, col_temp, op, board_list):
-                        row_temp += op[0]
-                        col_temp += op[1]
-                        #ending_square = index_to_notation(row_temp, col_temp)
+                for op1 in current_ops:
+                    while can_move(row_temp, col_temp, op1, board_list):
+                        row_temp += op1[0]
+                        col_temp += op1[1]
+                        ending_square = index_to_notation(row_temp, col_temp)
                         new_board_state = board_list.copy()
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
                         if piece.lower() == 'p':
-                            for op_cap in current_ops:
-                                if pincer_capturable(row, col, op_cap, board_list):
-                                    new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
-                        elif piece.lower() == 'l':
-                            if long_leaper_capturable(row, col, op_cap, board_list):
-                                new_board_state[row + op[0] / 2][col + op[1] / 2] = '-'
-                        elif piece.lower() == 'w':
-                            if withdrawer_capturable(row, col, op, board_list):
-                                new_board_state[row - op[0]][col - op[1]] = '-'
-                        elif piece.lower() == 'c':
-                            return "fml"
-                        possible_moves.append([[((row, col),(row_temp, col_temp)), BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
+                            for op2 in current_ops:
+                                if pincer_capturable(row, col, op2, board_list):
+                                    return 'fasle'
+                        possible_moves.append([[((row, col),(row_temp, col_temp)), new_board_state],"lmao"])
     return possible_moves
 
 # check if piece can perform legal move
@@ -106,41 +101,22 @@ def can_move(row, col, op, board_list):
     return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
             and (col + op[1] < 8) and (board_list[row + op[0]][col + op[1]] == '-'))
 
-# check if coordinator captures
-def coordinator_capturable(row, col, op, board_list):
-    for i in range(8):
-        for j in range(8):
-            if board_list[i][j] 
-
-# check if withdrawer capture
-def withdrawer_capturable(row, col, op, board_list):
-     return (board_list[row][col].isupper() != board_list[row - op[0]][col - op[1]].isupper())
-
-
-# check if pincer move causes captures
 def pincer_capturable(row, col, op, board_list):
     new_row = row + 2*op[0]
     new_col = col + 2*op[1]
     return ((new_row >= 0) and (new_row < 8) and (new_col >= 0)
-            and (new_col < 8) and (board_list[new_row][new_col] != '-') 
-            and (board_list[row][col].isupper() == board_list[new_row][new_col].isupper())
-            and board_list[row][col].isupper() != board_list[row + op[0]][col + op[1]].isupper())
-
-# check if leaper move captures
-def long_leaper_capturable(row, col, op, board_list):
-    new_row = row + op[0] / 2
-    new_col = col + op[1] / 2
-    return (board_list[row][col].isupper() != board_list[new_row][new_col].isupper())
+            and (new_col < 8) and (board_list[new_row][new_col] != '-')
+            and (board_list[row][col].isupper() == board_list[new_row][new_col].isupper()))
 
 # Returns a list of form [[old_spot, new_spot], newState]
 def minimax(ply, currentState):
     if ply == 0:
-        return [((), ()), currentState]
+        return [[], currentState]
     newMoves = generate_moves(currentState)
     newMove = newMoves[0]
     if currentState.whose_move == WHITE:
         bestMove = float('-inf')
-        for i in range(len(newMoves)):
+        for i in range(newMoves):
             newState = BC.BC_state(newMoves[i][1], BLACK)
             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
             if newValue > bestMove:
@@ -149,7 +125,7 @@ def minimax(ply, currentState):
         return newMove
     else:
         bestMove = float('inf')
-        for i in range(len(newMoves)):
+        for i in range(newMoves):
             newState = BC.BC_state(newMoves[i][1], WHITE)
             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
             if newValue > bestMove:
@@ -194,20 +170,15 @@ def makeMove(currentState, currentRemark, timelimit=10):
 
     # The following is a placeholder that just copies the current state.
     newState = BC.BC_state(currentState.board)
-    # new_board_state = currentState.board.copy()
-    # new_board_state[5][0] = new_board_state[6][0]
-    # new_board_state[6][0] = '-'
-    # newState = BC.BC_state(new_board_state)
 
     # Fix up whose turn it will be.
     newState.whose_move = 1 - currentState.whose_move
-    
+
     # Construct a representation of the move that goes from the
     # currentState to the newState.
     # Here is a placeholder in the right format but with made-up
     # numbers:
-    move = ((6, 0), (5, 0))
-
+    move = ((6, 4), (3, 4))
 
     # Make up a new remark
     newRemark = "I END MY TURN."

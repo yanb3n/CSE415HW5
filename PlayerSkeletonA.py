@@ -76,24 +76,24 @@ def generate_moves(currentState):
             col_temp = col
             starting_square = index_to_notation(row_temp, col_temp)
             piece = board_list[row][col]
-            if (board_list[row][col] is not '-'
-                and piece.lower() is not 'k' 
+            if (board_list[row][col] != '-'
+                and piece.lower() != 'k' 
                 and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
                 current_ops = operators[board_list[row][col].lower()]
-                for op in current_ops:
-                    while can_move(row_temp, col_temp, op, board_list):
-                        row_temp += op[0]
-                        col_temp += op[1]
+                for op1 in current_ops:
+                    while can_move(row_temp, col_temp, op1, board_list):
+                        row_temp += op1[0]
+                        col_temp += op1[1]
                         ending_square = index_to_notation(row_temp, col_temp)
                         new_board_state = board_list.copy()
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
-                        if piece.lower() is 'p':
-                            for op in current_ops:
-                                if op[0] is 'z':
-                                    return idk
-                        possible_moves.append([[(starting_square, ending_square), new_board_state],"lmao"])
+                        if piece.lower() == 'p':
+                            for op2 in current_ops:
+                                if pincer_capturable(row, col, op2, board_list):
+                                    return 'fasle'
+                        possible_moves.append([[((row, col),(row_temp, col_temp)), new_board_state],"lmao"])
     return possible_moves
 
 # check if piece can perform legal move
@@ -101,7 +101,12 @@ def can_move(row, col, op, board_list):
     return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
             and (col + op[1] < 8) and (board_list[row + op[0]][col + op[1]] == '-'))
 
-def pincer_capture(row, col, op, board_list):
+def pincer_capturable(row, col, op, board_list):
+    new_row = row + 2*op[0]
+    new_col = col + 2*op[1]
+    return ((new_row >= 0) and (new_row < 8) and (new_col >= 0)
+            and (new_col < 8) and (board_list[new_row][new_col] != '-') 
+            and (board_list[row][col].isupper() == board_list[new_row][new_col].isupper()))
 
 # Returns a list of form [[old_spot, new_spot], newState]
 def minimax(ply, currentState):

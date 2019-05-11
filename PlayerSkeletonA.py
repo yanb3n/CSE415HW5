@@ -27,36 +27,33 @@ f = 5
 g = 6
 h = 7
 
-operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn 
-             'l':[(2,0),(0,2),(-2,0),(0,-2)], #long leaper
-             'i':[()], #imitator 
-             'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #withdrawer (queen)
-             'k':[(1,1),(1,-1),(-1,1),(-1,-1)], #king
-             'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #coordinator
-             'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]} #freezer
+operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
+             'l':[(2,0),(0,2),(-2,0),(0,-2)],  # long leaper
+             'i':[()],  # imitator
+             'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # withdrawer (queen)
+             'k':[(1,1),(1,-1),(-1,1),(-1,-1)],  # king
+             'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # coordinator
+             'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]}  # freezer
 
 
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
-    
-
-    # generate tree
-    # run minimax on tree
-    #   while running minimax do static eval on leaf node (V value)
-
-    '''
+    if alphaBeta:
+        bestMove = alphabeta_pruning(ply, currentState, float('-inf'), float('inf'))[0]
+    else:
+        bestMove = minimax(ply, currentState)[1]
     if useBasicStaticEval:
-        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState, board_list)  # implement minimax algorithm
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)
     elif alphaBeta:
         pass  # temporary
     elif useZobristHashing:
         pass  # temporary
-    output['N_STATES_EXPANDED'] = 0  # get states from minimax algorithm
+    output['N_STATES_EXPANDED'] = 0
     output['N_STATIC_EVALS'] = 0
     output['N_CUTOFFS'] = 0
     return output
-    '''
+
 
 def next_to_freezer(board_list, row, col):
     for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
@@ -77,7 +74,7 @@ def generate_moves(currentState):
             starting_square = index_to_notation(row_temp, col_temp)
             piece = board_list[row][col]
             if (board_list[row][col] != '-'
-                and piece.lower() != 'k' 
+                and piece.lower() != 'k'
                 and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
                 current_ops = operators[board_list[row][col].lower()]
@@ -105,18 +102,18 @@ def pincer_capturable(row, col, op, board_list):
     new_row = row + 2*op[0]
     new_col = col + 2*op[1]
     return ((new_row >= 0) and (new_row < 8) and (new_col >= 0)
-            and (new_col < 8) and (board_list[new_row][new_col] != '-') 
+            and (new_col < 8) and (board_list[new_row][new_col] != '-')
             and (board_list[row][col].isupper() == board_list[new_row][new_col].isupper()))
 
 # Returns a list of form [[old_spot, new_spot], newState]
 def minimax(ply, currentState):
     if ply == 0:
-        return [[], currentState]
+        return [((), ()), currentState]
     newMoves = generate_moves(currentState)
     newMove = newMoves[0]
     if currentState.whose_move == WHITE:
         bestMove = float('-inf')
-        for i in range(newMoves):
+        for i in range(len(newMoves)):
             newState = BC.BC_state(newMoves[i][1], BLACK)
             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
             if newValue > bestMove:
@@ -125,7 +122,7 @@ def minimax(ply, currentState):
         return newMove
     else:
         bestMove = float('inf')
-        for i in range(newMoves):
+        for i in range(len(newMoves)):
             newState = BC.BC_state(newMoves[i][1], WHITE)
             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
             if newValue > bestMove:
@@ -135,8 +132,34 @@ def minimax(ply, currentState):
 
 
 # implement alpha-beta pruning here
-def alphabeta_pruning():
-    pass
+def alphabeta_pruning(ply, currentState, alpha, beta):
+    if ply == 0:
+        return [basicStaticEval(currentState), ((), ()), currentState]
+    newMoves = generate_moves(currentState)
+    newMove = [0, newMoves[0]]  # [value, [((oldspot), (newspot)), state]]
+    if currentState.whose_move == WHITE:
+        best = float('-inf')
+        for i in range(len(newMoves)):
+            newState = BC.BC_state(newMoves[i][1], BLACK)
+            newValue = minimax(ply - 1, newState, alpha, beta)[0]
+            newMove = newMoves[i]
+            best = max(best, newValue[0])
+            alpha = max(alpha, best)
+            if beta <= alpha:
+                break
+        return [best, newMove]
+    else:
+        best = float('inf')
+        for i in range(len(newMoves)):
+            newState = BC.BC_state(newMoves[i][1], WHITE)
+            newValue = minimax(ply - 1, newState, alpha, beta)[0]
+            newMove = newMoves[i]
+            best = max(best, newValue[0])
+            alpha = max(alpha, best)
+            if beta <= alpha:
+                break
+        return [best, newMove]
+
 
 def makeMove(currentState, currentRemark, timelimit=10):
     # Compute the new state for a move.
@@ -144,6 +167,10 @@ def makeMove(currentState, currentRemark, timelimit=10):
 
     # The following is a placeholder that just copies the current state.
     newState = BC.BC_state(currentState.board)
+    # new_board_state = currentState.board.copy()
+    # new_board_state[5][0] = new_board_state[6][0]
+    # new_board_state[6][0] = '-'
+    # newState = BC.BC_state(new_board_state)
 
     # Fix up whose turn it will be.
     newState.whose_move = 1 - currentState.whose_move
@@ -152,7 +179,8 @@ def makeMove(currentState, currentRemark, timelimit=10):
     # currentState to the newState.
     # Here is a placeholder in the right format but with made-up
     # numbers:
-    move = ((6, 4), (3, 4))
+    move = ((6, 0), (5, 0))
+
 
     # Make up a new remark
     newRemark = "I END MY TURN."

@@ -75,8 +75,10 @@ def generate_moves(currentState):
             row_temp = row
             col_temp = col
             starting_square = index_to_notation(row_temp, col_temp)
-            if (board_list[row][col] is not '-' 
-                and board_list[row][col] in pieces[whose_move] 
+            piece = board_list[row][col]
+            if (board_list[row][col] is not '-'
+                and piece.lower() is not 'k' 
+                and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
                 current_ops = operators[board_list[row][col].lower()]
                 for op in current_ops:
@@ -87,7 +89,8 @@ def generate_moves(currentState):
                         new_board_state = board_list.copy()
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
-                        possible_moves.append([[starting_square, ending_square], new_board_state])
+                        #if 
+                        possible_moves.append([(starting_square, ending_square), new_board_state])
     return possible_moves
 
 # check if piece can perform legal move

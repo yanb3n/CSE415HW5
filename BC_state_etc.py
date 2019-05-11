@@ -33,7 +33,7 @@ We are following these rules:
   Pincers can pinch using any friendly piece as their partners, not just other pincers.
 
   An imitator can imitate at most one piece during a move.
- 
+
 '''
 BLACK = 0
 WHITE = 1
@@ -66,7 +66,6 @@ WHITE_IMITATOR    = 9
 WHITE_WITHDRAWER  = 11
 WHITE_KING        = 13
 WHITE_FREEZER     = 15
-
 
 def who(piece): return piece % 2  # BLACK's pieces are even; WHITE's are odd.
 

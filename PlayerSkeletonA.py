@@ -39,6 +39,34 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
+    
+
+    # generate tree
+    # run minimax on tree
+    #   while running minimax do static eval on leaf node (V value)
+
+    '''
+    if useBasicStaticEval:
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState, board_list)  # implement minimax algorithm
+    elif alphaBeta:
+        pass  # temporary
+    elif useZobristHashing:
+        pass  # temporary
+    output['N_STATES_EXPANDED'] = 0  # get states from minimax algorithm
+    output['N_STATIC_EVALS'] = 0
+    output['N_CUTOFFS'] = 0
+    return output
+    '''
+
+def next_to_freezer(board_list, row, col):
+    for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
+        if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
+            and (col + op[1] < 8)):
+            if board_list[row + op[0]][col + op[0]]:
+                return True
+    return False
+
+def generate_moves(currentState):
     board_list = currentState.board  # list of current board positions in row-major order
     possible_moves = []
     for row in range(8):
@@ -52,35 +80,6 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
                         row_temp += op[0]
                         col_temp += op[1]
                         possible_moves.append([row_temp, col_temp])
-
-    # generate tree
-    # run minimax on tree
-    #   while running minimax do static eval on leaf node (V value)
-
-
-    if useBasicStaticEval:
-        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState, board_list)  # implement minimax algorithm
-    elif alphaBeta:
-        pass  # temporary
-    elif useZobristHashing:
-        pass  # temporary
-    output['N_STATES_EXPANDED'] = 0  # get states from minimax algorithm
-    output['N_STATIC_EVALS'] = 0
-    output['N_CUTOFFS'] = 0
-    return output
-
-def next_to_freezer(board_list, row, col):
-    for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
-        if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
-            and (col + op[1] < 8)):
-            if board_list[row + op[0]][col + op[0]]:
-                return True
-    return False
-
-
-
-
-def generate_moves(currentState):
     return 0
 
 # check if piece can perform legal move

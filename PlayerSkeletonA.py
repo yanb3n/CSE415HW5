@@ -15,17 +15,17 @@ WITHDRAWER = 4
 KING = 5
 COORDINATOR = 6
 FREEZER = 7
-pieces = [['P','L','I','W','K','C','F'],['p','l','i','w','k','c','f']]  # pieces
+pieces = [['P','L','I','W','K','C','F'],['p','l','i','w','k','c','f']]  # pieces, use pieces[color][piece] to check 
 
 # for chess board notation
-A = 0
-B = 1
-C = 2
-D = 3 
-E = 4
-F = 5
-G = 6
-H = 7
+a = 0
+b = 1
+c = 2
+d = 3 
+e = 4
+f = 5
+g = 6
+h = 7
 
 operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn 
              'l':[(2,0),(0,2),(-2,0),(0,-2)], #long leaper
@@ -39,13 +39,13 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
-    board_list = BC.parse(currentState.board)  # list of current board positions in row-major order
+    board_list = currentState.board  # list of current board positions in row-major order
     possible_moves = []
     for row in range(8):
         for col in range(8):
             row_temp = row
             col_temp = col
-            if board_list[row][col] is not '-':
+            if board_list[row][col] is not '-' and not next_to_freezer(board_list, row_temp, col_temp):
                 current_ops = operators[board_list[row][col].lower()]
                 for op in current_ops:
                     while can_move(row_temp, col_temp, op, board_list):
@@ -68,6 +68,15 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     output['N_STATIC_EVALS'] = 0
     output['N_CUTOFFS'] = 0
     return output
+
+def next_to_freezer(board_list, row, col):
+    for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
+        if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
+            and (col + op[1] < 8)):
+            if 
+
+
+
 
 def generate_moves(currentState):
     return 0

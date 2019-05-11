@@ -1,14 +1,10 @@
 I was recently asked how to get started with this option, and I thought I would post this for the benefit of any of you asking yourselves the same question.
 
- 
-
 After getting familiar with the rules and some of the starter code (esp. BC_state_etc.py, and winTester.py),
 
 Make a copy of PlayerSkeletonA.py and name it using the naming rules for your agent.
 
 Then focus on getting parameterized_minimax to work. Here is how  you could go about that:
-
- 
 
 Basic move generator... create a list of successors:
      scan the board in row-major order (needed for parameterized_minimax);

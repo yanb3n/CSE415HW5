@@ -6,8 +6,8 @@ The beginnings of an agent that might someday play Baroque Chess.
 import BC_state_etc as BC
 
 global output
-WHITE = 0
-BLACK = 1
+WHITE = 1
+BLACK = 0
 PAWN = 0
 LONG_LEAPER = 2
 IMITATOR = 3
@@ -68,19 +68,27 @@ def next_to_freezer(board_list, row, col):
 
 def generate_moves(currentState):
     board_list = currentState.board  # list of current board positions in row-major order
+    whose_move = currentState.whose_move
     possible_moves = []
     for row in range(8):
         for col in range(8):
             row_temp = row
             col_temp = col
-            if board_list[row][col] is not '-' and not next_to_freezer(board_list, row_temp, col_temp):
+            starting_square = index_to_notation(row_temp, col_temp)
+            if (board_list[row][col] is not '-' 
+                and board_list[row][col] in pieces[whose_move] 
+                and not next_to_freezer(board_list, row_temp, col_temp)):
                 current_ops = operators[board_list[row][col].lower()]
                 for op in current_ops:
                     while can_move(row_temp, col_temp, op, board_list):
                         row_temp += op[0]
                         col_temp += op[1]
-                        possible_moves.append([row_temp, col_temp])
-    return 0
+                        ending_square = index_to_notation(row_temp, col_temp)
+                        new_board_state = board_list.copy()
+                        new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                        new_board_state[row][col] = '-'
+                        possible_moves.append([(starting_square, ending_square), new_board_state])
+    return possible_moves
 
 # check if piece can perform legal move
 def can_move(row, col, op, board_list):
@@ -115,6 +123,11 @@ def makeMove(currentState, currentRemark, timelimit=10):
     newRemark = "I END MY TURN."
 
     return [[move, newState], newRemark]
+
+def index_to_notation(row, col):
+    notation_val = ''
+    notation_val = chr(col + 97) + str(8 - row)
+    return notation_val 
 
 def nickname():
     return "Gary"

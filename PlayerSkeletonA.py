@@ -4,6 +4,7 @@ The beginnings of an agent that might someday play Baroque Chess.
 '''
 
 import BC_state_etc as BC
+import time
 
 global output
 WHITE = 1
@@ -39,15 +40,12 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
-
-
-    # generate tree
-    # run minimax on tree
-    #   while running minimax do static eval on leaf node (V value)
-
-    '''
+    if alphaBeta:
+        bestMove = alphabeta_pruning(ply, currentState, float('-inf'), float('inf'))[1][1]
+    else:
+        bextMove = minimax(ply, currentState)[1]
     if useBasicStaticEval:
-        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(currentState, board_list)  # implement minimax algorithm
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)  # implement minimax algorithm
     elif alphaBeta:
         pass  # temporary
     elif useZobristHashing:
@@ -56,7 +54,7 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     output['N_STATIC_EVALS'] = 0
     output['N_CUTOFFS'] = 0
     return output
-    '''
+
 
 def next_to_freezer(board_list, row, col):
     for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
@@ -111,12 +109,12 @@ def pincer_capturable(row, col, op, board_list):
 # Returns a list of form [[old_spot, new_spot], newState]
 def minimax(ply, currentState):
     if ply == 0:
-        return [[], currentState]
+        return [((), ()), currentState]
     newMoves = generate_moves(currentState)
     newMove = newMoves[0]
     if currentState.whose_move == WHITE:
         bestMove = float('-inf')
-        for i in range(newMoves):
+        for i in range(len(newMoves)):
             newState = BC.BC_state(newMoves[i][1], BLACK)
             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
             if newValue > bestMove:
@@ -125,7 +123,7 @@ def minimax(ply, currentState):
         return newMove
     else:
         bestMove = float('inf')
-        for i in range(newMoves):
+        for i in range(len(newMoves)):
             newState = BC.BC_state(newMoves[i][1], WHITE)
             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
             if newValue > bestMove:
@@ -144,32 +142,38 @@ def alphabeta_pruning(ply, currentState, alpha, beta):
         best = float('-inf')
         for i in range(len(newMoves)):
             newState = BC.BC_state(newMoves[i][1], BLACK)
-            newValue = minimax(ply - 1, newState, alpha, beta)[0]
+            newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)[0]
             newMove = newMoves[i]
             best = max(best, newValue[0])
             alpha = max(alpha, best)
             if beta <= alpha:
                 break
-        return [best, newMove]
+        return [best, newMove[1:]]
     else:
         best = float('inf')
         for i in range(len(newMoves)):
             newState = BC.BC_state(newMoves[i][1], WHITE)
-            newValue = minimax(ply - 1, newState, alpha, beta)[0]
+            newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)[0]
             newMove = newMoves[i]
             best = max(best, newValue[0])
             alpha = max(alpha, best)
             if beta <= alpha:
                 break
-        return [best, newMove]
+        return [best, newMove[1:]]
 
 
 def makeMove(currentState, currentRemark, timelimit=10):
     # Compute the new state for a move.
     # You should implement an anytime algorithm based on IDDFS.
+    start_time = time.time()
+    ply = 1
+    while time.time() - start_time < timelimit:
+        best_move = minimax(ply, currentState)
+        ply += 1
 
     # The following is a placeholder that just copies the current state.
-    newState = BC.BC_state(currentState.board)
+    # newState = BC.BC_state(currentState.board)
+    newState = best_move[1]
 
     # Fix up whose turn it will be.
     newState.whose_move = 1 - currentState.whose_move
@@ -178,7 +182,8 @@ def makeMove(currentState, currentRemark, timelimit=10):
     # currentState to the newState.
     # Here is a placeholder in the right format but with made-up
     # numbers:
-    move = ((6, 4), (3, 4))
+    # move = ((6, 4), (3, 4))
+    move = best_move[0]
 
     # Make up a new remark
     newRemark = "I END MY TURN."
@@ -194,7 +199,7 @@ def nickname():
     return "Gary"
 
 def introduce():
-    return '''I'm Gary Exasparov, a \"champion\" Baroque Chess agent.
+    return '''I'm Gary Kasparov, a \"champion\" Baroque Chess agent.
     I was created by Jeffrey Gao (jgao117) and Ben Yan (yanb3).'''
 
 # initialize data structures and fields here

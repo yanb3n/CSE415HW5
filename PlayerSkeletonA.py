@@ -15,9 +15,11 @@ WITHDRAWER = 4
 KING = 5
 COORDINATOR = 6
 FREEZER = 7
-pieces = [['P','L','I','W','K','C','F'],['p','l','i','w','k','c','f']]  # pieces, use pieces[color][piece] to check 
+pieces = [['p','l','i','w','k','c','f'],['P','L','I','W','K','C','F']]  # pieces, use pieces[color][piece] to check 
 
 # for chess board notation
+
+'''
 a = 0
 b = 1
 c = 2
@@ -26,12 +28,14 @@ e = 4
 f = 5
 g = 6
 h = 7
+'''
 
 operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn 
              'l':[(2,0),(0,2),(-2,0),(0,-2)], #long leaper
-             'i':[()], #imitator 
+             'i':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1),(2,0),(0,2),(-2,0),
+                  (0,-2)], #imitator 
              'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #withdrawer (queen)
-             'k':[(1,1),(1,-1),(-1,1),(-1,-1)], #king
+             'k':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #king
              'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #coordinator
              'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]} #freezer
 
@@ -69,13 +73,26 @@ def generate_moves(currentState):
     board_list = currentState.board  # list of current board positions in row-major order
     whose_move = currentState.whose_move
     possible_moves = []
+    king_position = [[0 for x in range(2)] for x in range(2)]
+    king_position[WHITE] = [-1, -1]
+    king_position[BLACK] = [-1, -1]
     for row in range(8):
         for col in range(8):
             row_temp = row
             col_temp = col
             #starting_square = index_to_notation(row_temp, col_temp)
             piece = board_list[row][col]
-            if (board_list[row][col] != '-'
+            if (piece.lower() == 'k'
+                and piece in pieces[whose_move] 
+                and not next_to_freezer(board_list, row_temp, col_temp)):
+                current_ops = operators['k']
+                king_position[whose_move] = [row, col]
+                for king_op in current_ops:
+                    if king_case(row, col, king_op,board_list):
+                        possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])), 
+                                                BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
+
+            elif (board_list[row][col] != '-'
                 and piece.lower() != 'k' 
                 and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
@@ -90,7 +107,7 @@ def generate_moves(currentState):
                         new_board_state[row][col] = '-'
                         if piece.lower() == 'p':
                             for op_cap in current_ops:
-                                if pincer_capturable(row, col, op_cap, board_list):
+                                if pincer_capturable(row, col, op_cap, new_board_state):
                                     new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
                         elif piece.lower() == 'l':
                             if long_leaper_capturable(row, col, op_cap, board_list):
@@ -100,7 +117,8 @@ def generate_moves(currentState):
                                 new_board_state[row - op[0]][col - op[1]] = '-'
                         elif piece.lower() == 'c':
                             return "fml"
-                        possible_moves.append([[((row, col),(row_temp, col_temp)), BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
+                        possible_moves.append([[((row, col),(row_temp, col_temp)), 
+                                                BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
     return possible_moves
 
 # check if piece can perform legal move
@@ -108,16 +126,25 @@ def can_move(row, col, op, board_list):
     return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
             and (col + op[1] < 8) and (board_list[row + op[0]][col + op[1]] == '-'))
 
+# check if king can capture or move
+def king_case(row, col, op, board_list):
+    new_row = row + op[0]
+    new_col = col + op[1]
+    return ((new_row >= 0) and (new_row < 8) and (new_col >= 0) and (new_col < 8) 
+            and (board_list[new_row][new_col] == '-'
+            or board_list[row][col].isupper() != board_list[new_row][new_col].isupper()))
+
+'''
 # check if coordinator captures
 def coordinator_capturable(row, col, op, board_list):
     for i in range(8):
         for j in range(8):
-            if board_list[i][j] 
+            if board_list[i][j] == 'k'
+'''
 
 # check if withdrawer capture
 def withdrawer_capturable(row, col, op, board_list):
      return (board_list[row][col].isupper() != board_list[row - op[0]][col - op[1]].isupper())
-
 
 # check if pincer move causes captures
 def pincer_capturable(row, col, op, board_list):

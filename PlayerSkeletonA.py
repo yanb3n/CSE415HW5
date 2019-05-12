@@ -31,14 +31,14 @@ g = 6
 h = 7
 '''
 
-operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)], #pawn
-             'l':[(2,0),(0,2),(-2,0),(0,-2)], #long leaper
+operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
+             'l':[(2,0),(0,2),(-2,0),(0,-2)],  # long leaper
              'i':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1),(2,0),(0,2),(-2,0),
-                  (0,-2)], #imitator
-             'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #withdrawer (queen)
-             'k':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #king
-             'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)], #coordinator
-             'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]} #freezer
+                  (0,-2)],  # imitator
+             'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # withdrawer (queen)
+             'k':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # king
+             'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # coordinator
+             'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]}  # freezer
 
 
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
@@ -47,7 +47,7 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     if alphaBeta:
         bestMove = alphabeta_pruning(ply, currentState, float('-inf'), float('inf'))[1][1]
     else:
-        bextMove = minimax(ply, currentState)[1]
+        bestMove = minimax(ply, currentState)[1]
     if useBasicStaticEval:
         output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)  # implement minimax algorithm
     elif alphaBeta:
@@ -63,8 +63,14 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
 def next_to_freezer(board_list, row, col):
     for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
         if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
-            and (col + op[1] < 8)):
-            if board_list[row + op[0]][col + op[0]]:
+           and (col + op[1] < 8)):
+            print(board_list[row + op[0]][col + op[1]].isupper())
+            print(board_list[row][col].isupper())
+            print(board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper())
+            print((board_list[row + op[0]][col + op[1]].lower()))
+            print((board_list[row + op[0]][col + op[1]].lower()) != 'f')
+            if (board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper() and
+                    board_list[row + op[0]][col + op[1]].lower() != 'f'):
                 return True
     return False
 
@@ -81,7 +87,7 @@ def generate_moves(currentState):
             col_temp = col
             #starting_square = index_to_notation(row_temp, col_temp)
             piece = board_list[row][col]
-            if (piece.lower() == 'k'
+            if (piece.lower() is 'k'
                 and piece in pieces[whose_move]
                 and not next_to_freezer(board_list, row_temp, col_temp)):
                 current_ops = operators['k']
@@ -90,11 +96,12 @@ def generate_moves(currentState):
                     if king_case(row, col, king_op,board_list):
                         possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
                                                 BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
-
-            elif (board_list[row][col] != '-'
+            elif (board_list[row][col] is not '-'
                 and piece.lower() != 'k' 
                 and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
+                print(piece)
+                print('------------------------------------------------------------------------')  # debugging freezer
                 current_ops = operators[board_list[row][col].lower()]
                 for op in current_ops:
                     while can_move(row_temp, col_temp, op, board_list):
@@ -132,14 +139,6 @@ def king_case(row, col, op, board_list):
     return ((new_row >= 0) and (new_row < 8) and (new_col >= 0) and (new_col < 8)
             and (board_list[new_row][new_col] == '-'
             or board_list[row][col].isupper() != board_list[new_row][new_col].isupper()))
-
-'''
-# check if coordinator captures
-def coordinator_capturable(row, col, op, board_list):
-    for i in range(8):
-        for j in range(8):
-            if board_list[i][j] == 'k'
-'''
 
 # check if withdrawer capture
 def withdrawer_capturable(row, col, op, board_list):
@@ -205,7 +204,7 @@ def minimax(ply, currentState):
         return newMove
 
 
-# implement alpha-beta pruning here
+# SYNTAX will be cleaned up for sake of clarity and readability
 def alphabeta_pruning(ply, currentState, alpha, beta):
     if ply == 0:
         return [basicStaticEval(currentState), ((), ()), currentState]
@@ -238,6 +237,14 @@ def alphabeta_pruning(ply, currentState, alpha, beta):
 def makeMove(currentState, currentRemark, timelimit=10):
     # Compute the new state for a move.
     # You should implement an anytime algorithm based on IDDFS.
+
+    # Maps piece numbers to characters
+    board_list = currentState.board
+    for r in range(8):
+        for c in range(8):
+            board_list[r][c] = BC.CODE_TO_INIT[board_list[r][c]]
+    currentState.board = board_list
+
     start_time = time.time()
     ply = 1
     while time.time() - start_time < timelimit:

@@ -99,12 +99,32 @@ def can_move(row, col, op, board_list):
     return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
             and (col + op[1] < 8) and (board_list[row + op[0]][col + op[1]] == '-'))
 
+
 def pincer_capturable(row, col, op, board_list):
     new_row = row + 2*op[0]
     new_col = col + 2*op[1]
     return ((new_row >= 0) and (new_row < 8) and (new_col >= 0)
             and (new_col < 8) and (board_list[new_row][new_col] != '-')
             and (board_list[row][col].isupper() == board_list[new_row][new_col].isupper()))
+
+# Checks for whether there is a capturable piece by a move of the coordinator
+# Returns the (rank, file) of a piece if capturable; if none, returns empty list
+def coordinator_aligned(row, col, op, board_list):
+    capturable = []
+    new_row = row + op[0]
+    new_col = col + op[1]
+    kings_row = 0
+    kings_col = 0
+    for r in range(8):
+        for c in range(8):
+            if board_list[r][c] == 'K'or board_list[r][c] == 'k':
+                kings_row = r
+                kings_col = c
+    if board_list[kings_row][new_col] != '-':
+        capturable.append([kings_row, new_col])
+    if board_list[new_row][kings_col] != '-':
+        capturable.append([new_row, kings_col])
+    return capturable
 
 # Returns a list of form [[old_spot, new_spot], newState]
 def minimax(ply, currentState):

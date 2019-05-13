@@ -93,7 +93,12 @@ def generate_moves(currentState):
                 current_ops = operators['k']
                 king_position[whose_move] = [row, col]
                 for king_op in current_ops:
+                    row_temp += king_op[0]
+                    col_temp += king_op[1]
                     if king_case(row, col, king_op,board_list):
+                        new_board_state = board_list.copy()
+                        new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                        new_board_state[row][col] = '-'
                         possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
                                                 BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
             elif (board_list[row][col] is not '-'

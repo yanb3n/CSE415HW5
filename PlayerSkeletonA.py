@@ -187,30 +187,76 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
         capturable.append([new_row, kings_col])
     return capturable
 
-# Returns a list of form [[old_spot, new_spot], newState]
-def minimax(ply, currentState):
+
+# # Returns a list of form [[old_spot, new_spot], newState]
+# def minimax(ply, currentState):
+#     if ply == 0:
+#         return basicStaticEval(currentState)
+#     newMoves = generate_moves(currentState)
+#     if currentState.whose_move == WHITE:
+#         best = float('-inf')
+#         for move in range(len(newMoves)):
+#             newValue = minimax(ply - 1, move[0][1])
+#             if newValue >= best:
+#                 best = newValue
+#         return best
+#     else:
+#         best = float('inf')
+#         for move in range(len(newMoves)):
+#             newValue = minimax(ply - 1, move[0][1])
+#             if newValue >= best:
+#                 best = newValue
+#         return best
+
+# Returns a list of form [value, [[[old_spot, new_spot], newState], remark]]
+# generate_moves: [[((row, col),(row_temp, col_temp)), BC.BC_state(new_board_state, 1 - whose_move)],"lmao"]
+def minimax(ply, stateList):
+    currentState = stateList[0][1]
     if ply == 0:
-        return [((), ()), currentState]
+        return [basicStaticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
-    newMove = newMoves[0]
+    bestMove = newMoves[0]
     if currentState.whose_move == WHITE:
-        bestMove = float('-inf')
-        for i in range(len(newMoves)):
-            newState = BC.BC_state(newMoves[i][1], BLACK)
-            newValue = basicStaticEval(minimax(ply - 1, newState)[1])
-            if newValue > bestMove:
-                bestMove = newValue
-                newMove = newMoves[i]
-        return newMove
+        best = float('-inf')
+        for nextMove in newMoves:
+            newValue = minimax(ply - 1, nextMove)[0]
+            if newValue >= best:
+                best = newValue
+                bestMove = nextMove
+        return [best, bestMove]
     else:
-        bestMove = float('inf')
-        for i in range(len(newMoves)):
-            newState = BC.BC_state(newMoves[i][1], WHITE)
-            newValue = basicStaticEval(minimax(ply - 1, newState)[1])
-            if newValue > bestMove:
-                bestMove = newValue
-                newMove = newMoves[i]
-        return newMove
+        best = float('inf')
+        for nextMove in newMoves:
+            newValue = minimax(ply - 1, nextMove)[0]
+            if newValue >= best:
+                best = newValue
+                bestMove = nextMove
+        return [best, bestMove]
+
+# # Returns a list of form [[old_spot, new_spot], newState]
+# def minimax(ply, currentState):
+#     if ply == 0:
+#         return [((), ()), currentState]
+#     newMoves = generate_moves(currentState)
+#     newMove = newMoves[0]
+#     if currentState.whose_move == WHITE:
+#         bestMove = float('-inf')
+#         for i in range(len(newMoves)):
+#             newState = BC.BC_state(newMoves[i][1], BLACK)
+#             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
+#             if newValue > bestMove:
+#                 bestMove = newValue
+#                 newMove = newMoves[i]
+#         return newMove
+#     else:
+#         bestMove = float('inf')
+#         for i in range(len(newMoves)):
+#             newState = BC.BC_state(newMoves[i][1], WHITE)
+#             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
+#             if newValue > bestMove:
+#                 bestMove = newValue
+#                 newMove = newMoves[i]
+#         return newMove
 
 
 # SYNTAX will be cleaned up for sake of clarity and readability

@@ -95,7 +95,7 @@ def generate_moves(currentState):
                 for king_op in current_ops:
                     row_temp += king_op[0]
                     col_temp += king_op[1]
-                    if king_case(row, col, king_op,board_list):
+                    if king_case(row, col, king_op, board_list):
                         new_board_state = board_list.copy()
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
@@ -173,18 +173,18 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
     if king_position[whose_move] is [-1, -1]:
         for r in range(8):
             for c in range(8):
-                if board_list[r][c] == pieces[whose_move][KING]:
+                if new_board_list[r][c] == pieces[whose_move][KING]:
                     kings_row = r
                     kings_col = c
     else:
         kings_row = king_position[0]
         kings_col = king_position[1]
-    if (board_list[kings_row][new_col] != '-' 
-       and board_list[kings_row][new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
-        capturable.append([kings_row, new_col])
-    if (board_list[new_row][kings_col] != '-'
-       and board_list[new_row][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
-        capturable.append([new_row, kings_col])
+    if (new_board_list[kings_row][c_new_col] != '-' 
+       and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
+        capturable.append([kings_row, c_new_col])
+    if (new_board_list[c_new_row][kings_col] != '-'
+       and new_board_list[c_new_col][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
+        capturable.append([c_new_col, kings_col])
     return capturable
 
 

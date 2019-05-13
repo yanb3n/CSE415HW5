@@ -100,8 +100,6 @@ def generate_moves(currentState):
                 and piece.lower() != 'k' 
                 and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
-                print(piece)
-                print('------------------------------------------------------------------------')  # debugging freezer
                 current_ops = operators[board_list[row][col].lower()]
                 for op in current_ops:
                     while can_move(row_temp, col_temp, op, board_list):

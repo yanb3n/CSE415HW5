@@ -179,8 +179,8 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
     if (board_list[kings_row][new_col] != '-' 
        and board_list[kings_row][new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([kings_row, new_col])
-    if board_list[new_row][kings_col] != '-'
-       and board_list[new_row][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper():
+    if (board_list[new_row][kings_col] != '-'
+       and board_list[new_row][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([new_row, kings_col])
     return capturable
 

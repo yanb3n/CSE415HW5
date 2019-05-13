@@ -260,31 +260,36 @@ def minimax(ply, stateList):
 
 
 # SYNTAX will be cleaned up for sake of clarity and readability
-def alphabeta_pruning(ply, currentState, alpha, beta):
+def alphabeta_pruning(ply, stateList, alpha, beta):
+    currentState = stateList[0][1]
     if ply == 0:
-        return basicStaticEval(currentState)
+        return [basicStaticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
+    bestMove = newMoves[0]
     if currentState.whose_move == WHITE:
         best = float('-inf')
-        for i in range(len(newMoves)):
-            newState = BC.BC_state(newMoves[i][1], BLACK)
-            newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)
+        for nextMove in newMoves:
+            newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
             best = max(best, newValue)
             alpha = max(alpha, best)
+            if newValue >= best:
+                best = newValue
+                bestMove = nextMove
             if beta <= alpha:
                 break
-        return best
+        return [best, bestMove]
     else:
         best = float('inf')
-        for i in range(len(newMoves)):
-            newState = BC.BC_state(newMoves[i][1], WHITE)
-            newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)
-            newMove = newMoves[i]
+        for nextMove in newMoves:
+            newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
             best = max(best, newValue)
             alpha = max(alpha, best)
+            if newValue >= best:
+                best = newValue
+                bestMove = nextMove
             if beta <= alpha:
                 break
-        return best
+        return [best, bestMove]
 
 
 # # SYNTAX will be cleaned up for sake of clarity and readability
@@ -331,12 +336,12 @@ def makeMove(currentState, currentRemark, timelimit=10):
     start_time = time.time()
     ply = 1
     while time.time() - start_time < timelimit:
-        best_move = minimax(ply, currentState)
+        best_move = minimax(ply, currentState)[1]
         ply += 1
 
     # The following is a placeholder that just copies the current state.
     # newState = BC.BC_state(currentState.board)
-    newState = best_move[1]
+    newState = best_move[0][1]
 
     # Fix up whose turn it will be.
     newState.whose_move = 1 - currentState.whose_move
@@ -346,7 +351,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
     # Here is a placeholder in the right format but with made-up
     # numbers:
     # move = ((6, 4), (3, 4))
-    move = best_move[0]
+    move = best_move[0][0]
 
     # Make up a new remark
     newRemark = "I END MY TURN."

@@ -209,7 +209,8 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
 #         return best
 
 # Returns a list of form [value, [[[old_spot, new_spot], newState], remark]]
-# generate_moves: [[((row, col),(row_temp, col_temp)), BC.BC_state(new_board_state, 1 - whose_move)],"lmao"]
+# generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
+# Not sure if this works
 def minimax(ply, stateList):
     currentState = stateList[0][1]
     if ply == 0:
@@ -259,9 +260,11 @@ def minimax(ply, stateList):
 #         return newMove
 
 
-# SYNTAX will be cleaned up for sake of clarity and readability
+# Returns a list: [bestValue, [[((old_spot), (new_spot)), newState], remark]]
+# stateList is same format as return value of generate_moves:
+#   [[((row, col),(row_temp, col_temp)), newState, 1 - whose_move)],"lmao"]
 def alphabeta_pruning(ply, stateList, alpha, beta):
-    currentState = stateList[0][1]
+    currentState = stateList[0][1]  # new state also within the stateList
     if ply == 0:
         return [basicStaticEval(currentState), stateList]
     newMoves = generate_moves(currentState)

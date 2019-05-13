@@ -216,31 +216,59 @@ def minimax(ply, currentState):
 # SYNTAX will be cleaned up for sake of clarity and readability
 def alphabeta_pruning(ply, currentState, alpha, beta):
     if ply == 0:
-        return [basicStaticEval(currentState), ((), ()), currentState]
+        return basicStaticEval(currentState)
     newMoves = generate_moves(currentState)
-    newMove = [0, newMoves[0]]  # [value, [((oldspot), (newspot)), state]]
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for i in range(len(newMoves)):
             newState = BC.BC_state(newMoves[i][1], BLACK)
-            newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)[0]
-            newMove = newMoves[i]
-            best = max(best, newValue[0])
+            newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)
+            best = max(best, newValue)
             alpha = max(alpha, best)
             if beta <= alpha:
                 break
-        return [best, newMove[1:]]
+        return best
     else:
         best = float('inf')
         for i in range(len(newMoves)):
             newState = BC.BC_state(newMoves[i][1], WHITE)
-            newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)[0]
+            newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)
             newMove = newMoves[i]
-            best = max(best, newValue[0])
+            best = max(best, newValue)
             alpha = max(alpha, best)
             if beta <= alpha:
                 break
-        return [best, newMove[1:]]
+        return best
+
+
+# # SYNTAX will be cleaned up for sake of clarity and readability
+# def alphabeta_pruning(ply, currentState, alpha, beta):
+#     if ply == 0:
+#         return [basicStaticEval(currentState), ((), ()), currentState]
+#     newMoves = generate_moves(currentState)
+#     newMove = [0, newMoves[0]]  # [value, [((oldspot), (newspot)), state]]
+#     if currentState.whose_move == WHITE:
+#         best = float('-inf')
+#         for i in range(len(newMoves)):
+#             newState = BC.BC_state(newMoves[i][1], BLACK)
+#             newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)[0]
+#             newMove = newMoves[i]
+#             best = max(best, newValue[0])
+#             alpha = max(alpha, best)
+#             if beta <= alpha:
+#                 break
+#         return [best, newMove[1:]]
+#     else:
+#         best = float('inf')
+#         for i in range(len(newMoves)):
+#             newState = BC.BC_state(newMoves[i][1], WHITE)
+#             newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)[0]
+#             newMove = newMoves[i]
+#             best = max(best, newValue[0])
+#             alpha = max(alpha, best)
+#             if beta <= alpha:
+#                 break
+#         return [best, newMove[1:]]
 
 
 def makeMove(currentState, currentRemark, timelimit=10):

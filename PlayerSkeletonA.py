@@ -10,12 +10,12 @@ global output
 WHITE = 1
 BLACK = 0
 PAWN = 0
-LONG_LEAPER = 2
-IMITATOR = 3
-WITHDRAWER = 4
-KING = 5
-COORDINATOR = 6
-FREEZER = 7
+LONG_LEAPER = 1
+IMITATOR = 2
+WITHDRAWER = 3
+KING = 4
+COORDINATOR = 5
+FREEZER = 6
 pieces = [['p','l','i','w','k','c','f'],['P','L','I','W','K','C','F']]  # pieces, use pieces[color][piece] to check
 
 # for chess board notation
@@ -93,7 +93,12 @@ def generate_moves(currentState):
                 current_ops = operators['k']
                 king_position[whose_move] = [row, col]
                 for king_op in current_ops:
+                    row_temp += king_op[0]
+                    col_temp += king_op[1]
                     if king_case(row, col, king_op,board_list):
+                        new_board_state = board_list.copy()
+                        new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                        new_board_state[row][col] = '-'
                         possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
                                                 BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
             elif (board_list[row][col] is not '-'
@@ -120,7 +125,9 @@ def generate_moves(currentState):
                             if withdrawer_capturable(row, col, op, board_list):
                                 new_board_state[row - op[0]][col - op[1]] = '-'
                         elif piece.lower() == 'c':
-                            return "fml"
+                            capture = coordinator_capturable(row_temp, col_temp, new_board_state, king_position, whose_move)
+                            for captured in capture:
+                                new_board_state[captured[0]][captured[1]] = '-'
                         possible_moves.append([[((row, col),(row_temp, col_temp)),
                                                 BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
     return possible_moves
@@ -159,20 +166,24 @@ def long_leaper_capturable(row, col, op, board_list):
 
 # Checks for whether there is a capturable piece by a move of the coordinator
 # Returns the (rank, file) of a piece if capturable; if none, returns empty list
-def coordinator_aligned(row, col, op, board_list):
+def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, whose_move):
     capturable = []
-    new_row = row + op[0]
-    new_col = col + op[1]
     kings_row = 0
     kings_col = 0
-    for r in range(8):
-        for c in range(8):
-            if board_list[r][c] == 'K'or board_list[r][c] == 'k':
-                kings_row = r
-                kings_col = c
-    if board_list[kings_row][new_col] != '-':
+    if king_position[whose_move] is [-1, -1]:
+        for r in range(8):
+            for c in range(8):
+                if board_list[r][c] == pieces[whose_move][KING]:
+                    kings_row = r
+                    kings_col = c
+    else:
+        kings_row = king_position[0]
+        kings_col = king_position[1]
+    if (board_list[kings_row][new_col] != '-' 
+       and board_list[kings_row][new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([kings_row, new_col])
-    if board_list[new_row][kings_col] != '-':
+    if (board_list[new_row][kings_col] != '-'
+       and board_list[new_row][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([new_row, kings_col])
     return capturable
 

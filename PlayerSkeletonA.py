@@ -120,7 +120,7 @@ def generate_moves(currentState):
                                     new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
                         elif piece.lower() == 'l':
                             if long_leaper_capturable(row, col, op, board_list):
-                                new_board_state[row + op[0] / 2][col + op[1] / 2] = '-'
+                                new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
                         elif piece.lower() == 'w':
                             if withdrawer_capturable(row, col, op, board_list):
                                 new_board_state[row - op[0]][col - op[1]] = '-'
@@ -160,8 +160,8 @@ def pincer_capturable(row, col, op, board_list):
 
 # check if leaper move captures
 def long_leaper_capturable(row, col, op, board_list):
-    new_row = row + op[0] / 2
-    new_col = col + op[1] / 2
+    new_row = int(row + op[0] / 2)
+    new_col = int(col + op[1] / 2)
     return (board_list[row][col].isupper() != board_list[new_row][new_col].isupper())
 
 # Checks for whether there is a capturable piece by a move of the coordinator
@@ -339,7 +339,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
     start_time = time.time()
     ply = 1
     while time.time() - start_time < timelimit:
-        best_move = minimax(ply, [[(), ()), currentState], 'remark'])[1]
+        best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]
         ply += 1
 
     # The following is a placeholder that just copies the current state.

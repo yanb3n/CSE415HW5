@@ -362,4 +362,8 @@ def adjacent_pieces(board_list, row, col):
     for square in adjacent_squares:
         
 
+<<<<<<< HEAD:PlayerSkeletonA.py
     return [friendly_pieces, opposing_pieces]
+=======
+    return bonus
+>>>>>>> 8ce3ec202ddbd5eac7d241723c1ed14497d6feff:Nick_Monsees_BC_Player.py

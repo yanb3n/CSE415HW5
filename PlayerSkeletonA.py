@@ -217,11 +217,7 @@ def minimax(ply, stateList):
     currentState = stateList[0][1]
     if ply == 0:
         return [basicStaticEval(currentState), stateList]
-    # if whose_move == 1 and ply % 2 == 0:
-
     newMoves = generate_moves(currentState)
-    # for move in newMoves:
-    #     print(move[0][0])
     bestMove = newMoves[0]
     if currentState.whose_move == WHITE:
         best = float('-inf')
@@ -320,7 +316,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
     # Make up a new remark
     newRemark = "I END MY TURN."
 
-    return [[best_move[0][0], newState], newRemark]
+    return [[move, newState], newRemark]
 
 def index_to_notation(row, col):
     notation_val = ''

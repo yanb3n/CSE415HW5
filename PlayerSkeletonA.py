@@ -147,7 +147,10 @@ def king_case(row, col, op, board_list):
 
 # check if withdrawer capture
 def withdrawer_capturable(row, col, op, board_list):
-     return (board_list[row][col].isupper() != board_list[row - op[0]][col - op[1]].isupper())
+    new_row = row - op[0]
+    new_col = col - op[0]
+    return ((((new_row >= 0) and (new_row < 8) and (new_col >= 0) and (new_col < 8)) and 
+    board_list[row][col].isupper() != board_list[row - op[0]][col - op[1]].isupper()))
 
 # check if pincer move causes captures
 def pincer_capturable(row, col, op, board_list):

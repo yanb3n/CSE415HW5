@@ -193,12 +193,13 @@ def timeout(func, args=(), kwargs={}, timeout_duration=1, default=None):
             threading.Thread.__init__(self)
             self.result = default
         def run(self):
-            try:
+            '''try:
                 self.result = func(*args, **kwargs)
             except Exception as e:
                 print("Seems there was an exception during play by "+str(CURRENT_PLAYER)+":\n"+str(e))
                 print(sys.exc_info())
                 self.result = default
+                '''
 
     pt = PlayerThread()
     pt.start()

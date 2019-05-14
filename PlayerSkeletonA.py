@@ -261,26 +261,27 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
 def makeMove(currentState, currentRemark, timelimit=10):
     # Compute the new state for a move.
     # You should implement an anytime algorithm based on IDDFS.
-    translated_board = currentState.board
+    translated_board = [r[:] for r in currentState.board]
     for r in range(8):
         for c in range(8):
             translated_board[r][c] = BC.CODE_TO_INIT[translated_board[r][c]]
-    currentState.board = translated_board
+    # currentState.board = translated_board
+    newCurrentState = BC.BC_state(translated_board, currentState.whose_move)
 
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState], '']]
-    while time.time() - start_time < timelimit and ply <= 3:
-        best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]  # [value, [[((old_spot), (new_spot)), newState], remark]]
+    while time.time() - start_time < timelimit and ply <= 2:
+        best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]  # [value, [[((old_spot), (new_spot)), newState], remark]]
         print(best_move[0][0])
         ply += 1
 
     newState = best_move[0][1]
-    board = newState.board
+    newBoard = newState.board
     for r in range(8):
         for c in range(8):
-            board[r][c] = BC.INIT_TO_CODE[board[r][c]]
-    newState.board = board
+            newBoard[r][c] = BC.INIT_TO_CODE[newBoard[r][c]]
+    newState.board = newBoard
 
     # Fix up whose turn it will be.
     newState.whose_move = 1 - currentState.whose_move

@@ -70,7 +70,7 @@ def next_to_freezer(board_list, row, col):
             print((board_list[row + op[0]][col + op[1]].lower()))
             print((board_list[row + op[0]][col + op[1]].lower()) != 'f')
             if (board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper() and
-                    board_list[row + op[0]][col + op[1]].lower() != 'f'):
+                    board_list[row + op[0]][col + op[1]].lower() == 'f'):
                 return True
     return False
 

@@ -73,69 +73,61 @@ def generate_moves(currentState):
         for col in range(8):
             row_temp = row
             col_temp = col
-            #test += 1
-            #print(test)
-            #starting_square = index_to_notation(row_temp, col_temp)
             piece = board_list[row][col]
-            if (piece.lower() is 'k'
-                and piece in pieces[whose_move]
-                and not next_to_freezer(board_list, row_temp, col_temp)):
-                king_position[whose_move] = [row, col]
-                for king_op in operators['k']:
-                    row_temp = row
-                    col_temp = col
-                    if king_case(row, col, king_op, board_list):
-                        row_temp += king_op[0]
-                        col_temp += king_op[1]
-                        new_board_state = [r[:] for r in board_list]
-                        new_board_state[row_temp][col_temp] = new_board_state[row][col]
-                        new_board_state[row][col] = '-'
-                        #print("wtf")
-                        possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
-                                                BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
-            elif (board_list[row][col] is not '-'
-                and piece.lower() == 'l' 
-                and piece in pieces[whose_move] 
-                and not next_to_freezer(board_list, row_temp, col_temp)):
-                for op in operators['l']:
-                    row_temp = row
-                    col_temp = col
-                    if can_move(row_temp, col_temp, op, board_list):
-                        row_temp += op[0]
-                        col_temp += op[1]
-                        if long_leaper_capturable(row, col, op, board_list):
-                            new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
-            elif (board_list[row][col] is not '-'
-                and piece.lower() != 'k' 
-                and piece in pieces[whose_move] 
-                and not next_to_freezer(board_list, row_temp, col_temp)):
-                current_ops = operators[board_list[row][col].lower()]
-                for op in current_ops:
-                    row_temp = row
-                    col_temp = col
-                    while can_move(row_temp, col_temp, op, board_list):
-                        row_temp += op[0]
-                        col_temp += op[1]
-                        #ending_square = index_to_notation(row_temp, col_temp)
-                        new_board_state = [r[:] for r in board_list]
-                        new_board_state[row_temp][col_temp] = new_board_state[row][col]
-                        new_board_state[row][col] = '-'
-                        if piece.lower() == 'p':
-                            for op_cap in current_ops:
-                                if pincer_capturable(row, col, op_cap, new_board_state):
-                                    #print("wtfp")
-                                    new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
-                        elif piece.lower() == 'w':
-                            if withdrawer_capturable(row, col, op, board_list):
-                                #print("wtfw")
-                                new_board_state[row - op[0]][col - op[1]] = '-'
-                        elif piece.lower() == 'c':
-                            capture = coordinator_capturable(row_temp, col_temp, new_board_state, king_position, whose_move)
-                            for captured in capture:
-                                #print("wtfc")
-                                new_board_state[captured[0]][captured[1]] = '-'
-                        possible_moves.append([[((row, col),(row_temp, col_temp)),
-                                                BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
+            if (board_list[row][col] is not '-'):
+                if (piece.lower() is 'k'
+                    and piece in pieces[whose_move]
+                    and not next_to_freezer(board_list, row_temp, col_temp)):
+                    king_position[whose_move] = [row, col]
+                    for king_op in operators['k']:
+                        row_temp = row
+                        col_temp = col
+                        if king_case(row, col, king_op, board_list):
+                            row_temp += king_op[0]
+                            col_temp += king_op[1]
+                            new_board_state = [r[:] for r in board_list]
+                            new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                            new_board_state[row][col] = '-'
+                            possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
+                elif (piece.lower() == 'l' 
+                    and piece in pieces[whose_move] 
+                    and not next_to_freezer(board_list, row_temp, col_temp)):
+                    for op in operators['l']:
+                        row_temp = row
+                        col_temp = col
+                        if can_move(row_temp, col_temp, op, board_list):
+                            row_temp += op[0]
+                            col_temp += op[1]
+                            if long_leaper_capturable(row, col, op, board_list):
+                                new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
+                elif (piece.lower() != 'k' 
+                    and piece in pieces[whose_move] 
+                    and not next_to_freezer(board_list, row_temp, col_temp)):
+                    current_ops = operators[board_list[row][col].lower()]
+                    for op in current_ops:
+                        row_temp = row
+                        col_temp = col
+                        while can_move(row_temp, col_temp, op, board_list):
+                            row_temp += op[0]
+                            col_temp += op[1]
+                            #ending_square = index_to_notation(row_temp, col_temp)
+                            new_board_state = [r[:] for r in board_list]
+                            new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                            new_board_state[row][col] = '-'
+                            if piece.lower() == 'p':
+                                for op_cap in current_ops:
+                                    if pincer_capturable(row, col, op_cap, new_board_state):
+                                        new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
+                            elif piece.lower() == 'w':
+                                if withdrawer_capturable(row, col, op, board_list):
+                                    new_board_state[row - op[0]][col - op[1]] = '-'
+                            elif piece.lower() == 'c':
+                                capture = coordinator_capturable(row_temp, col_temp, new_board_state, king_position, whose_move)
+                                for captured in capture:
+                                    new_board_state[captured[0]][captured[1]] = '-'
+                            possible_moves.append([[((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
     return possible_moves
 
 # check if piece can perform legal move
@@ -336,8 +328,31 @@ def basicStaticEval(state):
     return sum
 
 def staticEval(state):
+    values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
+              'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
+    centralization_bonus = {}
+    centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0, 0],
+                            [0, 1, 1, 1, 1, 1, 1, 1, 0],
+                            [0, 1, 2, 2, 0, 0, 0, 1, 0],
+                            [0, 1, 2, 0, 0, 0, 0, 1, 0],
+                            [0, 1, 2, 0, 0, 0, 0, 1, 0],
+                            [0, 1, 2, 0, 0, 0, 0, 1, 0],
+                            [0, 1, 1, 1, 1, 1, 1, 1, 0],
+                            [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+
+    sum = 0
+    board_list = state.board
+    for row in range(8):
+        for col in range(8):
+            if board_list[row][col] != '-':
+                sum += values[board_list[row][col]]
     '''Compute a more thorough static evaluation of the given state.
     This is intended for normal competitive play.  How you design this
     function could have a significant impact on your player's ability
     to win games.'''
-    pass
+    return sum
+
+def freezer_bonus(board_list, row, col):
+    bonus = 0
+
+    return bonus

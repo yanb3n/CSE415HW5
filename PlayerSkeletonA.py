@@ -19,19 +19,6 @@ COORDINATOR = 5
 FREEZER = 6
 pieces = [['p','l','i','w','k','c','f'],['P','L','I','W','K','C','F']]  # pieces, use pieces[color][piece] to check
 
-# for chess board notation
-
-'''
-a = 0
-b = 1
-c = 2
-d = 3 
-e = 4
-f = 5
-g = 6
-h = 7
-'''
-
 operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
              'l':[(2,0),(0,2),(-2,0),(0,-2)],  # long leaper
              'i':[],  # imitator (1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1),(2,0),(0,2),(-2,0),(0,-2)
@@ -238,10 +225,9 @@ def minimax(ply, stateList):
 
 
 # Returns a list: [bestValue, [[((old_spot), (new_spot)), newState], remark]]
-# stateList is same format as return value of generate_moves:
-#   [[((row, col),(row_temp, col_temp)), newState, 1 - whose_move)],"lmao"]
+# stateList: [[((row, col),(row_temp, col_temp)), newState, 1 - whose_move)],"lmao"]
 def alphabeta_pruning(ply, stateList, alpha, beta):
-    currentState = stateList[0][1]  # new state also within the stateList
+    currentState = stateList[0][1]
     if ply == 0:
         return [basicStaticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
@@ -249,10 +235,10 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
-            newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
+            newValue = minimax(ply - 1, nextMove)[0]
             best = max(best, newValue)
             alpha = max(alpha, best)
-            if newValue >= best:
+            if newValue > best:
                 best = newValue
                 bestMove = nextMove
             if beta <= alpha:
@@ -261,10 +247,10 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
     else:
         best = float('inf')
         for nextMove in newMoves:
-            newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
+            newValue = minimax(ply - 1, nextMove)[0]
             best = max(best, newValue)
             alpha = max(alpha, best)
-            if newValue >= best:
+            if newValue > best:
                 best = newValue
                 bestMove = nextMove
             if beta <= alpha:
@@ -275,42 +261,32 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
 def makeMove(currentState, currentRemark, timelimit=10):
     # Compute the new state for a move.
     # You should implement an anytime algorithm based on IDDFS.
-
-    # Maps piece numbers to characters
-    board_list = currentState.board
+    translated_board = currentState.board
     for r in range(8):
         for c in range(8):
-            board_list[r][c] = BC.CODE_TO_INIT[board_list[r][c]]
-    currentState.board = board_list
+            translated_board[r][c] = BC.CODE_TO_INIT[translated_board[r][c]]
+    currentState.board = translated_board
 
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState], '']]
     while time.time() - start_time < timelimit and ply <= 3:
-        # print('runs------')
-        best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]
+        best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]  # [value, [[((old_spot), (new_spot)), newState], remark]]
         print(best_move[0][0])
         ply += 1
 
-    print(currentState.board)
+    newState = best_move[0][1]
+    board = newState.board
     for r in range(8):
         for c in range(8):
-            board_list[r][c] = BC.INIT_TO_CODE[board_list[r][c]]
-    currentState.board = board_list
-    print(currentState.board)
-
-    # The following is a placeholder that just copies the current state.
-    # newState = BC.BC_state(currentState.board)
-    newState = best_move[0][1]
+            board[r][c] = BC.INIT_TO_CODE[board[r][c]]
+    newState.board = board
 
     # Fix up whose turn it will be.
     newState.whose_move = 1 - currentState.whose_move
 
     # Construct a representation of the move that goes from the
     # currentState to the newState.
-    # Here is a placeholder in the right format but with made-up
-    # numbers:
-    # move = ((6, 4), (3, 4))
     move = best_move[0][0]
 
     # Make up a new remark

@@ -265,7 +265,8 @@ def makeMove(currentState, currentRemark, timelimit=10):
     start_time = time.time()
     ply = 1
     while time.time() - start_time < timelimit:
-        best_move = minimax(ply, [[(), currentState], 'remark'])[1]
+        # weird syntax to integrate with minimax/alphabeta
+        best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]
         ply += 1
 
     # The following is a placeholder that just copies the current state.
@@ -280,7 +281,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
     # Here is a placeholder in the right format but with made-up
     # numbers:
     # move = ((6, 4), (3, 4))
-    move = best_move[0][0]
+    move = best_move[0][0]  # (old spot, new spot)
 
     # Make up a new remark
     newRemark = "I END MY TURN."

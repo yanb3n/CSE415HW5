@@ -359,6 +359,7 @@ def staticEval(state):
 def adjacent_pieces(board_list, row, col):
     friendly_pieces = 0
     opposing_pieces = 0
-    
+    for square in adjacent_squares:
+        
 
     return [friendly_pieces, opposing_pieces]

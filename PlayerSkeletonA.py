@@ -199,8 +199,8 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
                     kings_row = r
                     kings_col = c
     else:
-        kings_row = king_position[0]
-        kings_col = king_position[1]
+        kings_row = king_position[whose_move][0]
+        kings_col = king_position[whose_move][1]
     if (new_board_list[kings_row][c_new_col] != '-' 
        and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([kings_row, c_new_col])
@@ -286,7 +286,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState], '']]
-    while time.time() - start_time < timelimit and ply < 3:
+    while time.time() - start_time < timelimit and ply <= 3:
         print('runs------')
         best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]
         print(best_move[0][0])

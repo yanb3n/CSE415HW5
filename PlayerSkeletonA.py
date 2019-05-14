@@ -34,8 +34,7 @@ h = 7
 
 operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
              'l':[(2,0),(0,2),(-2,0),(0,-2)],  # long leaper
-             'i':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1),(2,0),(0,2),(-2,0),
-                  (0,-2)],  # imitator
+             'i':[],  # imitator (1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1),(2,0),(0,2),(-2,0),(0,-2)
              'w':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # withdrawer (queen)
              'k':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # king
              'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # coordinator
@@ -96,9 +95,11 @@ def generate_moves(currentState):
                 and not next_to_freezer(board_list, row_temp, col_temp)):
                 king_position[whose_move] = [row, col]
                 for king_op in operators['k']:
-                    row_temp += king_op[0]
-                    col_temp += king_op[1]
+                    row_temp = row
+                    col_temp = col
                     if king_case(row, col, king_op, board_list):
+                        row_temp += king_op[0]
+                        col_temp += king_op[1]
                         new_board_state = [r[:] for r in board_list]
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
@@ -106,22 +107,25 @@ def generate_moves(currentState):
                         possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
                                                 BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
             elif (board_list[row][col] is not '-'
-                and piece.lower() != 'l' 
+                and piece.lower() == 'l' 
                 and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
                 for op in operators['l']:
+                    row_temp = row
+                    col_temp = col
                     if can_move(row_temp, col_temp, op, board_list):
                         row_temp += op[0]
                         col_temp += op[1]
-                        if piece.lower() == 'l':
-                            if long_leaper_capturable(row, col, op, board_list):
-                                new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
+                        if long_leaper_capturable(row, col, op, board_list):
+                            new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
             elif (board_list[row][col] is not '-'
                 and piece.lower() != 'k' 
                 and piece in pieces[whose_move] 
                 and not next_to_freezer(board_list, row_temp, col_temp)):
                 current_ops = operators[board_list[row][col].lower()]
                 for op in current_ops:
+                    row_temp = row
+                    col_temp = col
                     while can_move(row_temp, col_temp, op, board_list):
                         row_temp += op[0]
                         col_temp += op[1]
@@ -286,7 +290,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState], '']]
-    while time.time() - start_time < timelimit and ply <= 3:
+    while time.time() - start_time < timelimit and ply < 3:
         print('runs------')
         best_move = minimax(ply, [[((), ()), currentState, True], 'remark'])[1]
         ply += 1

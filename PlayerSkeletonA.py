@@ -199,8 +199,8 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
                     kings_row = r
                     kings_col = c
     else:
-        kings_row = king_position[0]
-        kings_col = king_position[1]
+        kings_row = king_position[whose_move][0]
+        kings_col = king_position[whose_move][1]
     if (new_board_list[kings_row][c_new_col] != '-' 
        and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([kings_row, c_new_col])
@@ -217,23 +217,27 @@ def minimax(ply, stateList):
     currentState = stateList[0][1]
     if ply == 0:
         return [basicStaticEval(currentState), stateList]
+    # if whose_move == 1 and ply % 2 == 0:
+
     newMoves = generate_moves(currentState)
+    # for move in newMoves:
+    #     print(move[0][0])
     bestMove = newMoves[0]
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
             newValue = minimax(ply - 1, nextMove)
-            if newValue[0] >= best:
+            if newValue[0] > best:
                 best = newValue[0]
-                bestMove = newValue[1]
+                bestMove = nextMove
         return [best, bestMove]
     else:
         best = float('inf')
         for nextMove in newMoves:
             newValue = minimax(ply - 1, nextMove)
-            if newValue[0] >= best:
+            if newValue[0] > best:
                 best = newValue[0]
-                bestMove = newValue[1]
+                bestMove = nextMove
         return [best, bestMove]
 
 
@@ -286,8 +290,8 @@ def makeMove(currentState, currentRemark, timelimit=10):
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState], '']]
-    while time.time() - start_time < timelimit and ply < 3:
-        print('runs------')
+    while time.time() - start_time < timelimit and ply <= 3:
+        # print('runs------')
         best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]
         print(best_move[0][0])
         ply += 1
@@ -316,7 +320,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
     # Make up a new remark
     newRemark = "I END MY TURN."
 
-    return [[move, newState], newRemark]
+    return [[best_move[0][0], newState], newRemark]
 
 def index_to_notation(row, col):
     notation_val = ''

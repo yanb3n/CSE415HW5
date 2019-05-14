@@ -119,7 +119,7 @@ def generate_moves(currentState):
                                 if pincer_capturable(row, col, op_cap, new_board_state):
                                     new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
                         elif piece.lower() == 'l':
-                            if long_leaper_capturable(row, col, op_cap, board_list):
+                            if long_leaper_capturable(row, col, op, board_list):
                                 new_board_state[row + op[0] / 2][col + op[1] / 2] = '-'
                         elif piece.lower() == 'w':
                             if withdrawer_capturable(row, col, op, board_list):

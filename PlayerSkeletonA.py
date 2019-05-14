@@ -1,11 +1,11 @@
-'''PlayerSkeletonA.py
-The beginnings of an agent that might someday play Baroque Chess.
+'''Nick_Monsees_BC_Player.py
+Written by Jeffrey Gao (jgao117@uw.edu) and
+Ben Yan (yanb3@uw.edu).
 
 '''
 
 import BC_state_etc as BC
 import time
-import copy
 
 global output
 WHITE = 1
@@ -36,12 +36,12 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     else:
         bestMove = minimax(ply, currentState)[1]
     if useBasicStaticEval:
-        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)  # implement minimax algorithm
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)
     elif alphaBeta:
         pass  # temporary
     elif useZobristHashing:
         pass  # temporary
-    output['N_STATES_EXPANDED'] = 0  # get states from minimax algorithm
+    output['N_STATES_EXPANDED'] = 0
     output['N_STATIC_EVALS'] = 0
     output['N_CUTOFFS'] = 0
     return output
@@ -51,15 +51,11 @@ def next_to_freezer(board_list, row, col):
     for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
         if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
            and (col + op[1] < 8)):
-            # print(board_list[row + op[0]][col + op[1]].isupper())
-            # print(board_list[row][col].isupper())
-            # print(board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper())
-            # print((board_list[row + op[0]][col + op[1]].lower()))
-            # print((board_list[row + op[0]][col + op[1]].lower()) != 'f')
             if (board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper() and
                     board_list[row + op[0]][col + op[1]].lower() == 'f'):
                 return True
     return False
+
 
 def generate_moves(currentState):
     board_list = currentState.board  # list of current board positions in row-major order
@@ -68,7 +64,6 @@ def generate_moves(currentState):
     king_position = [[0 for x in range(2)] for x in range(2)]
     king_position[WHITE] = [-1, -1]
     king_position[BLACK] = [-1, -1]
-    test = 0
     for row in range(8):
         for col in range(8):
             row_temp = row
@@ -130,10 +125,12 @@ def generate_moves(currentState):
                                                     BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
     return possible_moves
 
+
 # check if piece can perform legal move
 def can_move(row, col, op, board_list):
     return ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
             and (col + op[1] < 8) and (board_list[row + op[0]][col + op[1]] == '-'))
+
 
 # check if king can capture or move
 def king_case(row, col, op, board_list):
@@ -143,12 +140,14 @@ def king_case(row, col, op, board_list):
             and (board_list[new_row][new_col] == '-'
             or board_list[row][col].isupper() != board_list[new_row][new_col].isupper()))
 
+
 # check if withdrawer capture
 def withdrawer_capturable(row, col, op, board_list):
     new_row = row - op[0]
     new_col = col - op[0]
     return ((((new_row >= 0) and (new_row < 8) and (new_col >= 0) and (new_col < 8)) and 
     board_list[row][col].isupper() != board_list[row - op[0]][col - op[1]].isupper()))
+
 
 # check if pincer move causes captures
 def pincer_capturable(row, col, op, board_list):
@@ -159,11 +158,13 @@ def pincer_capturable(row, col, op, board_list):
             and (board_list[row][col].isupper() == board_list[new_row][new_col].isupper())
             and board_list[row][col].isupper() != board_list[row + op[0]][col + op[1]].isupper())
 
+
 # check if leaper move captures
 def long_leaper_capturable(row, col, op, board_list):
     new_row = int(row + op[0] / 2)
     new_col = int(col + op[1] / 2)
     return (board_list[row][col].isupper() != board_list[new_row][new_col].isupper())
+
 
 # Checks for whether there is a capturable piece by a move of the coordinator
 # Returns the (rank, file) of a piece if capturable; if none, returns empty list
@@ -191,7 +192,6 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
 
 # Returns a list of form [value, [[((old_spot), (new_spot)), newState], remark]]
 # generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
-# Not sure if this works
 def minimax(ply, stateList):
     currentState = stateList[0][1]
     if ply == 0:
@@ -228,11 +228,10 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
         best = float('-inf')
         for nextMove in newMoves:
             newValue = minimax(ply - 1, nextMove)[0]
-            best = max(best, newValue)
-            alpha = max(alpha, best)
             if newValue > best:
                 best = newValue
                 bestMove = nextMove
+            alpha = max(alpha, best)
             if beta <= alpha:
                 break
         return [best, bestMove]
@@ -240,11 +239,10 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
         best = float('inf')
         for nextMove in newMoves:
             newValue = minimax(ply - 1, nextMove)[0]
-            best = max(best, newValue)
-            alpha = max(alpha, best)
             if newValue > best:
                 best = newValue
                 bestMove = nextMove
+            beta = max(beta, best)
             if beta <= alpha:
                 break
         return [best, bestMove]
@@ -257,7 +255,6 @@ def makeMove(currentState, currentRemark, timelimit=1):
     for r in range(8):
         for c in range(8):
             translated_board[r][c] = BC.CODE_TO_INIT[translated_board[r][c]]
-    # currentState.board = translated_board
     newCurrentState = BC.BC_state(translated_board, currentState.whose_move)
 
     start_time = time.time()
@@ -265,8 +262,8 @@ def makeMove(currentState, currentRemark, timelimit=1):
     best_move = [0, [[((), ()), currentState], '']]
     while time.time() - start_time < timelimit and ply <= 3:
         # [value, [[((old_spot), (new_spot)), newState], remark]]
-        best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
-        # print(best_move[0][0])
+        # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
+        best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('inf'), float('-inf'))[1]
         ply += 1
 
     newState = best_move[0][1]
@@ -288,17 +285,21 @@ def makeMove(currentState, currentRemark, timelimit=1):
 
     return [[move, newState], newRemark]
 
+
 def index_to_notation(row, col):
     notation_val = ''
     notation_val = chr(col + 97) + str(8 - row)
     return notation_val 
 
+
 def nickname():
-    return "Gary"
+    return "Nick"
+
 
 def introduce():
-    return '''I'm Gary Exasparov, a \"champion\" Baroque Chess agent.
+    return '''I'm Nick Monsees, a \"champion\" Baroque Chess agent.
     I was created by Jeffrey Gao (jgao117) and Ben Yan (yanb3).'''
+
 
 # initialize data structures and fields here
 def prepare(player2Nickname="My Dear Opponent", playWhite=True):
@@ -313,6 +314,7 @@ def prepare(player2Nickname="My Dear Opponent", playWhite=True):
     output = {'CURRENT_STATE_STATIC_EVAL': None, 'N_STATES_EXPANDED': 0, 'N_STATIC_EVALS': 0, 'N_CUTOFFS': 0}
     pass
 
+
 def basicStaticEval(state):
     '''Use the simple method for state evaluation described in the spec.
     This is typically used in parameterized_minimax calls to verify
@@ -326,6 +328,7 @@ def basicStaticEval(state):
             if board_list[row][col] != '-':
                 sum += values[board_list[row][col]]
     return sum
+
 
 def staticEval(state):
     values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,

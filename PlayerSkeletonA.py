@@ -27,6 +27,7 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
              'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # coordinator
              'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]}  # freezer
 
+adjacent_squares= [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]
 
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
@@ -333,29 +334,31 @@ def basicStaticEval(state):
 def staticEval(state):
     values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
               'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
-    centralization_bonus = {}
-    centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 1, 1, 1, 1, 1, 1, 1, 0],
-                            [0, 1, 2, 2, 0, 0, 0, 1, 0],
-                            [0, 1, 2, 0, 0, 0, 0, 1, 0],
-                            [0, 1, 2, 0, 0, 0, 0, 1, 0],
-                            [0, 1, 2, 0, 0, 0, 0, 1, 0],
-                            [0, 1, 1, 1, 1, 1, 1, 1, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+    centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0],
+                            [0, 1, 1, 1, 1, 1, 1, 0],
+                            [0, 1, 2, 2, 2, 2, 1, 0],
+                            [0, 1, 2, 3, 3, 2, 1, 0],
+                            [0, 1, 2, 3, 3, 2, 1, 0],
+                            [0, 1, 2, 2, 2, 2, 1, 0],
+                            [0, 1, 1, 1, 1, 1, 1, 0],
+                            [0, 0, 0, 0, 0, 0, 0, 0]]
 
     sum = 0
     board_list = state.board
     for row in range(8):
         for col in range(8):
             if board_list[row][col] != '-':
-                sum += values[board_list[row][col]]
+                sum += values[board_list[row][col]] 
+                sum += centralization_table[row][col]
     '''Compute a more thorough static evaluation of the given state.
     This is intended for normal competitive play.  How you design this
     function could have a significant impact on your player's ability
     to win games.'''
     return sum
 
-def freezer_bonus(board_list, row, col):
-    bonus = 0
+def adjacent_pieces(board_list, row, col):
+    friendly_pieces = 0
+    opposing_pieces = 0
+    
 
-    return bonus
+    return [friendly_pieces, opposing_pieces]

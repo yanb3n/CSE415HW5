@@ -5,6 +5,7 @@ The beginnings of an agent that might someday play Baroque Chess.
 
 import BC_state_etc as BC
 import time
+import copy
 
 global output
 WHITE = 1
@@ -81,26 +82,40 @@ def generate_moves(currentState):
     king_position = [[0 for x in range(2)] for x in range(2)]
     king_position[WHITE] = [-1, -1]
     king_position[BLACK] = [-1, -1]
+    test = 0
     for row in range(8):
         for col in range(8):
             row_temp = row
             col_temp = col
+            #test += 1
+            #print(test)
             #starting_square = index_to_notation(row_temp, col_temp)
             piece = board_list[row][col]
             if (piece.lower() is 'k'
                 and piece in pieces[whose_move]
                 and not next_to_freezer(board_list, row_temp, col_temp)):
-                current_ops = operators['k']
                 king_position[whose_move] = [row, col]
-                for king_op in current_ops:
+                for king_op in operators['k']:
                     row_temp += king_op[0]
                     col_temp += king_op[1]
                     if king_case(row, col, king_op, board_list):
-                        new_board_state = board_list.copy()
+                        new_board_state = [r[:] for r in board_list]
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
+                        #print("wtf")
                         possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
                                                 BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
+            elif (board_list[row][col] is not '-'
+                and piece.lower() != 'l' 
+                and piece in pieces[whose_move] 
+                and not next_to_freezer(board_list, row_temp, col_temp)):
+                for op in operators['l']:
+                    if can_move(row_temp, col_temp, op, board_list):
+                        row_temp += op[0]
+                        col_temp += op[1]
+                        if piece.lower() == 'l':
+                            if long_leaper_capturable(row, col, op, board_list):
+                                new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
             elif (board_list[row][col] is not '-'
                 and piece.lower() != 'k' 
                 and piece in pieces[whose_move] 
@@ -111,22 +126,22 @@ def generate_moves(currentState):
                         row_temp += op[0]
                         col_temp += op[1]
                         #ending_square = index_to_notation(row_temp, col_temp)
-                        new_board_state = board_list.copy()
+                        new_board_state = [r[:] for r in board_list]
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
                         if piece.lower() == 'p':
                             for op_cap in current_ops:
                                 if pincer_capturable(row, col, op_cap, new_board_state):
+                                    #print("wtfp")
                                     new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
-                        elif piece.lower() == 'l':
-                            if long_leaper_capturable(row, col, op, board_list):
-                                new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
                         elif piece.lower() == 'w':
                             if withdrawer_capturable(row, col, op, board_list):
+                                #print("wtfw")
                                 new_board_state[row - op[0]][col - op[1]] = '-'
                         elif piece.lower() == 'c':
                             capture = coordinator_capturable(row_temp, col_temp, new_board_state, king_position, whose_move)
                             for captured in capture:
+                                #print("wtfc")
                                 new_board_state[captured[0]][captured[1]] = '-'
                         possible_moves.append([[((row, col),(row_temp, col_temp)),
                                                 BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
@@ -199,6 +214,10 @@ def minimax(ply, stateList):
     currentState = stateList[0][1]
     # print('222222222222222222')
     if ply == 0:
+        asdf = basicStaticEval(currentState)
+        if asdf == -2:
+            print("wtf")
+        print(basicStaticEval(currentState))
         return [basicStaticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     # print('33333333333333333333')
@@ -270,10 +289,10 @@ def makeMove(currentState, currentRemark, timelimit=10):
 
     start_time = time.time()
     ply = 1
-    while time.time() - start_time < timelimit:
-        print('runs------')
+    while time.time() - start_time < timelimit or ply < 1:
+        #print('runs------')
         best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]
-        print('after======')
+        #print('after======')
         ply += 1
 
     # The following is a placeholder that just copies the current state.

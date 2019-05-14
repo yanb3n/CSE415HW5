@@ -236,11 +236,10 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
         best = float('-inf')
         for nextMove in newMoves:
             newValue = minimax(ply - 1, nextMove)[0]
-            best = max(best, newValue)
-            alpha = max(alpha, best)
             if newValue > best:
                 best = newValue
                 bestMove = nextMove
+            alpha = max(alpha, best)
             if beta <= alpha:
                 break
         return [best, bestMove]
@@ -248,11 +247,10 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
         best = float('inf')
         for nextMove in newMoves:
             newValue = minimax(ply - 1, nextMove)[0]
-            best = max(best, newValue)
-            alpha = max(alpha, best)
             if newValue > best:
                 best = newValue
                 bestMove = nextMove
+            beta = max(beta, best)
             if beta <= alpha:
                 break
         return [best, bestMove]
@@ -265,7 +263,6 @@ def makeMove(currentState, currentRemark, timelimit=1):
     for r in range(8):
         for c in range(8):
             translated_board[r][c] = BC.CODE_TO_INIT[translated_board[r][c]]
-    # currentState.board = translated_board
     newCurrentState = BC.BC_state(translated_board, currentState.whose_move)
 
     start_time = time.time()
@@ -273,8 +270,8 @@ def makeMove(currentState, currentRemark, timelimit=1):
     best_move = [0, [[((), ()), currentState], '']]
     while time.time() - start_time < timelimit and ply <= 3:
         # [value, [[((old_spot), (new_spot)), newState], remark]]
-        best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
-        # print(best_move[0][0])
+        # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
+        best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('inf'), float('-inf'))[1]
         ply += 1
 
     newState = best_move[0][1]

@@ -258,7 +258,7 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
         return [best, bestMove]
 
 
-def makeMove(currentState, currentRemark, timelimit=10):
+def makeMove(currentState, currentRemark, timelimit=1):
     # Compute the new state for a move.
     # You should implement an anytime algorithm based on IDDFS.
     translated_board = [r[:] for r in currentState.board]
@@ -271,9 +271,10 @@ def makeMove(currentState, currentRemark, timelimit=10):
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState], '']]
-    while time.time() - start_time < timelimit and ply <= 2:
-        best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]  # [value, [[((old_spot), (new_spot)), newState], remark]]
-        print(best_move[0][0])
+    while time.time() - start_time < timelimit and ply <= 3:
+        # [value, [[((old_spot), (new_spot)), newState], remark]]
+        best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
+        # print(best_move[0][0])
         ply += 1
 
     newState = best_move[0][1]

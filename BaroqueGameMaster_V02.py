@@ -130,7 +130,6 @@ def runGame():
            print("the move did not have the proper form such as ((3, 7), (5, 7)).")
            WINNER = other_side
            FINISHED = True;
-        print(currentState.board)
         print(side+"'s move: the "+BC.CODE_TO_INIT[currentState.board[i][j]]+\
               " at ("+str(i)+", "+str(j)+") to ("+str(ii)+", "+str(jj)+").")
         
@@ -211,7 +210,7 @@ def timeout(func, args=(), kwargs={}, timeout_duration=1, default=None):
     if pt.isAlive():
         print("Took too long.")
         print("We are now terminating the game.")
-        print("Player "+CURRENT_PLAYER+" loses.")
+        print("Player "+str(CURRENT_PLAYER)+" loses.")
         #if USE_HTML: gameToHTML.reportResult("Player "+CURRENT_PLAYER+" took too long (%04f seconds) and thus loses." % diff)
         #if USE_HTML: gameToHTML.endHTML()
         exit()

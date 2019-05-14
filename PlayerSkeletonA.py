@@ -64,11 +64,11 @@ def next_to_freezer(board_list, row, col):
     for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
         if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
            and (col + op[1] < 8)):
-            print(board_list[row + op[0]][col + op[1]].isupper())
-            print(board_list[row][col].isupper())
-            print(board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper())
-            print((board_list[row + op[0]][col + op[1]].lower()))
-            print((board_list[row + op[0]][col + op[1]].lower()) != 'f')
+            # print(board_list[row + op[0]][col + op[1]].isupper())
+            # print(board_list[row][col].isupper())
+            # print(board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper())
+            # print((board_list[row + op[0]][col + op[1]].lower()))
+            # print((board_list[row + op[0]][col + op[1]].lower()) != 'f')
             if (board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper() and
                     board_list[row + op[0]][col + op[1]].lower() == 'f'):
                 return True
@@ -188,30 +188,11 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
     return capturable
 
 
-# # Returns a list of form [[old_spot, new_spot], newState]
-# def minimax(ply, currentState):
-#     if ply == 0:
-#         return basicStaticEval(currentState)
-#     newMoves = generate_moves(currentState)
-#     if currentState.whose_move == WHITE:
-#         best = float('-inf')
-#         for move in range(len(newMoves)):
-#             newValue = minimax(ply - 1, move[0][1])
-#             if newValue >= best:
-#                 best = newValue
-#         return best
-#     else:
-#         best = float('inf')
-#         for move in range(len(newMoves)):
-#             newValue = minimax(ply - 1, move[0][1])
-#             if newValue >= best:
-#                 best = newValue
-#         return best
-
 # Returns a list of form [value, [[[old_spot, new_spot], newState], remark]]
 # generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
 # Not sure if this works
 def minimax(ply, stateList):
+    print(stateList)
     currentState = stateList[0][1]
     if ply == 0:
         return [basicStaticEval(currentState), stateList]
@@ -233,31 +214,6 @@ def minimax(ply, stateList):
                 best = newValue
                 bestMove = nextMove
         return [best, bestMove]
-
-# # Returns a list of form [[old_spot, new_spot], newState]
-# def minimax(ply, currentState):
-#     if ply == 0:
-#         return [((), ()), currentState]
-#     newMoves = generate_moves(currentState)
-#     newMove = newMoves[0]
-#     if currentState.whose_move == WHITE:
-#         bestMove = float('-inf')
-#         for i in range(len(newMoves)):
-#             newState = BC.BC_state(newMoves[i][1], BLACK)
-#             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
-#             if newValue > bestMove:
-#                 bestMove = newValue
-#                 newMove = newMoves[i]
-#         return newMove
-#     else:
-#         bestMove = float('inf')
-#         for i in range(len(newMoves)):
-#             newState = BC.BC_state(newMoves[i][1], WHITE)
-#             newValue = basicStaticEval(minimax(ply - 1, newState)[1])
-#             if newValue > bestMove:
-#                 bestMove = newValue
-#                 newMove = newMoves[i]
-#         return newMove
 
 
 # Returns a list: [bestValue, [[((old_spot), (new_spot)), newState], remark]]
@@ -295,36 +251,6 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
         return [best, bestMove]
 
 
-# # SYNTAX will be cleaned up for sake of clarity and readability
-# def alphabeta_pruning(ply, currentState, alpha, beta):
-#     if ply == 0:
-#         return [basicStaticEval(currentState), ((), ()), currentState]
-#     newMoves = generate_moves(currentState)
-#     newMove = [0, newMoves[0]]  # [value, [((oldspot), (newspot)), state]]
-#     if currentState.whose_move == WHITE:
-#         best = float('-inf')
-#         for i in range(len(newMoves)):
-#             newState = BC.BC_state(newMoves[i][1], BLACK)
-#             newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)[0]
-#             newMove = newMoves[i]
-#             best = max(best, newValue[0])
-#             alpha = max(alpha, best)
-#             if beta <= alpha:
-#                 break
-#         return [best, newMove[1:]]
-#     else:
-#         best = float('inf')
-#         for i in range(len(newMoves)):
-#             newState = BC.BC_state(newMoves[i][1], WHITE)
-#             newValue = alphabeta_pruning(ply - 1, newState, alpha, beta)[0]
-#             newMove = newMoves[i]
-#             best = max(best, newValue[0])
-#             alpha = max(alpha, best)
-#             if beta <= alpha:
-#                 break
-#         return [best, newMove[1:]]
-
-
 def makeMove(currentState, currentRemark, timelimit=10):
     # Compute the new state for a move.
     # You should implement an anytime algorithm based on IDDFS.
@@ -339,7 +265,9 @@ def makeMove(currentState, currentRemark, timelimit=10):
     start_time = time.time()
     ply = 1
     while time.time() - start_time < timelimit:
+        print('runs------')
         best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]
+        print('after======')
         ply += 1
 
     # The following is a placeholder that just copies the current state.

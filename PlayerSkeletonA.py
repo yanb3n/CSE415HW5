@@ -36,12 +36,12 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     else:
         bestMove = minimax(ply, currentState)[1]
     if useBasicStaticEval:
-        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)  # implement minimax algorithm
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)
     elif alphaBeta:
         pass  # temporary
     elif useZobristHashing:
         pass  # temporary
-    output['N_STATES_EXPANDED'] = 0  # get states from minimax algorithm
+    output['N_STATES_EXPANDED'] = 0
     output['N_STATIC_EVALS'] = 0
     output['N_CUTOFFS'] = 0
     return output
@@ -64,13 +64,10 @@ def generate_moves(currentState):
     king_position = [[0 for x in range(2)] for x in range(2)]
     king_position[WHITE] = [-1, -1]
     king_position[BLACK] = [-1, -1]
-    test = 0
     for row in range(8):
         for col in range(8):
             row_temp = row
             col_temp = col
-            #test += 1
-            #print(test)
             #starting_square = index_to_notation(row_temp, col_temp)
             piece = board_list[row][col]
             if (piece.lower() is 'k'
@@ -86,7 +83,6 @@ def generate_moves(currentState):
                         new_board_state = [r[:] for r in board_list]
                         new_board_state[row_temp][col_temp] = new_board_state[row][col]
                         new_board_state[row][col] = '-'
-                        #print("wtf")
                         possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
                                                 BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
             elif (board_list[row][col] is not '-'
@@ -119,16 +115,13 @@ def generate_moves(currentState):
                         if piece.lower() == 'p':
                             for op_cap in current_ops:
                                 if pincer_capturable(row, col, op_cap, new_board_state):
-                                    #print("wtfp")
                                     new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
                         elif piece.lower() == 'w':
                             if withdrawer_capturable(row, col, op, board_list):
-                                #print("wtfw")
                                 new_board_state[row - op[0]][col - op[1]] = '-'
                         elif piece.lower() == 'c':
                             capture = coordinator_capturable(row_temp, col_temp, new_board_state, king_position, whose_move)
                             for captured in capture:
-                                #print("wtfc")
                                 new_board_state[captured[0]][captured[1]] = '-'
                         possible_moves.append([[((row, col),(row_temp, col_temp)),
                                                 BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
@@ -201,7 +194,6 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
 
 # Returns a list of form [value, [[((old_spot), (new_spot)), newState], remark]]
 # generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
-# Not sure if this works
 def minimax(ply, stateList):
     currentState = stateList[0][1]
     if ply == 0:
@@ -270,7 +262,7 @@ def makeMove(currentState, currentRemark, timelimit=1):
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState], '']]
-    while time.time() - start_time < timelimit and ply <= 4:
+    while time.time() - start_time < timelimit and ply <= 3:
         # [value, [[((old_spot), (new_spot)), newState], remark]]
         # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
         best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('inf'), float('-inf'))[1]

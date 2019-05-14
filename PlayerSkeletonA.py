@@ -339,7 +339,7 @@ def makeMove(currentState, currentRemark, timelimit=10):
     start_time = time.time()
     ply = 1
     while time.time() - start_time < timelimit:
-        best_move = minimax(ply, currentState)[1]
+        best_move = minimax(ply, [[(), ()), currentState], 'remark'])[1]
         ply += 1
 
     # The following is a placeholder that just copies the current state.

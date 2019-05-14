@@ -206,7 +206,7 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
     return capturable
 
 
-# Returns a list of form [value, [[[old_spot, new_spot], newState], remark]]
+# Returns a list of form [value, [[((old_spot), (new_spot)), newState, boolean], remark]]
 # generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
 # Not sure if this works
 def minimax(ply, stateList):
@@ -214,10 +214,6 @@ def minimax(ply, stateList):
     currentState = stateList[0][1]
     # print('222222222222222222')
     if ply == 0:
-        asdf = basicStaticEval(currentState)
-        if asdf == -2:
-            print("wtf")
-        print(basicStaticEval(currentState))
         return [basicStaticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     # print('33333333333333333333')
@@ -289,11 +285,18 @@ def makeMove(currentState, currentRemark, timelimit=10):
 
     start_time = time.time()
     ply = 1
-    while time.time() - start_time < timelimit or ply < 1:
-        #print('runs------')
-        best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]
-        #print('after======')
+    best_move = [0, [[((), ()), currentState], '']]
+    while time.time() - start_time < timelimit and ply <= 3:
+        print('runs------')
+        best_move = minimax(ply, [[((), ()), currentState, True], 'remark'])[1]
         ply += 1
+
+    print(currentState.board)
+    for r in range(8):
+        for c in range(8):
+            board_list[r][c] = BC.INIT_TO_CODE[board_list[r][c]]
+    currentState.board = board_list
+    print(currentState.board)
 
     # The following is a placeholder that just copies the current state.
     # newState = BC.BC_state(currentState.board)

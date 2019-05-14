@@ -210,34 +210,30 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
     return capturable
 
 
-# Returns a list of form [value, [[((old_spot), (new_spot)), newState, boolean], remark]]
+# Returns a list of form [value, [[((old_spot), (new_spot)), newState], remark]]
 # generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
 # Not sure if this works
 def minimax(ply, stateList):
-    # print('11111111111111111')
     currentState = stateList[0][1]
-    # print('222222222222222222')
     if ply == 0:
         return [basicStaticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
-    # print('33333333333333333333')
     bestMove = newMoves[0]
-    # print('4444444444444444444')
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
-            newValue = minimax(ply - 1, nextMove)[0]
-            if newValue >= best:
-                best = newValue
-                bestMove = nextMove
+            newValue = minimax(ply - 1, nextMove)
+            if newValue[0] >= best:
+                best = newValue[0]
+                bestMove = newValue[1]
         return [best, bestMove]
     else:
         best = float('inf')
         for nextMove in newMoves:
-            newValue = minimax(ply - 1, nextMove)[0]
-            if newValue >= best:
-                best = newValue
-                bestMove = nextMove
+            newValue = minimax(ply - 1, nextMove)
+            if newValue[0] >= best:
+                best = newValue[0]
+                bestMove = newValue[1]
         return [best, bestMove]
 
 
@@ -292,7 +288,8 @@ def makeMove(currentState, currentRemark, timelimit=10):
     best_move = [0, [[((), ()), currentState], '']]
     while time.time() - start_time < timelimit and ply < 3:
         print('runs------')
-        best_move = minimax(ply, [[((), ()), currentState, True], 'remark'])[1]
+        best_move = minimax(ply, [[((), ()), currentState], 'remark'])[1]
+        print(best_move[0][0])
         ply += 1
 
     print(currentState.board)

@@ -31,10 +31,10 @@ adjacent_squares= [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]
 
 values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
               'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
-centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0],
-                        [0, 1, 1, 1, 1, 1, 1, 0],
-                        [0, 1, 2, 2, 2, 2, 1, 0],
-                        [0, 1, 2, 3, 3, 2, 1, 0],
+centralization_table = [[0, 1, 0, 0, 0, 0, 0, 0],
+                        [1, 2, 2, 1, 1, 1, 1, 0],
+                        [2, 3, 2, 2, 2, 2, 1, 0],
+                        [3, 3, 4, 5, 3, 2, 1, 0],
                         [0, 1, 2, 3, 3, 2, 1, 0],
                         [0, 1, 2, 2, 2, 2, 1, 0],
                         [0, 1, 1, 1, 1, 1, 1, 0],
@@ -255,10 +255,10 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
 # generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
 def minimax(ply, stateList):
     currentState = stateList[0][1]
-    stateList[0][2] += 1
+    # stateList[0][2] += 1
     if ply == 0:
-        stateList[0][3] += 1
-        return [basicStaticEval(currentState), stateList]
+        # stateList[0][3] += 1
+        return [staticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     bestMove = newMoves[0]
     if currentState.whose_move == WHITE:
@@ -326,7 +326,7 @@ def makeMove(currentState, currentRemark, timelimit=1):
     while time.time() - start_time < timelimit and ply <= 4:
         # [value, [[((old_spot), (new_spot)), newState], remark]]
         # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
-        best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('inf'), float('-inf'))[1]
+        best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('-inf'), float('inf'))[1]
         ply += 1
 
     newState = best_move[0][1]

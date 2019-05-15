@@ -18,6 +18,9 @@ KING = 4
 COORDINATOR = 5
 FREEZER = 6
 pieces = [['p','l','i','w','k','c','f'],['P','L','I','W','K','C','F']]  # pieces, use pieces[color][piece] to check
+remarks = ['Really now?', 'Is that all you\'ve got?', 'Are you sure about that move?', 'Do you know what you are doing?',
+           'You sure you don\'t want to take that back?', 'Who taught you how to play?', 'Did you miss a move?', 'What do you think about this?',
+            'Don\'t you just love this game?', 'How are you feeling about this move?']
 
 operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
              'l':[(2,0),(0,2),(-2,0),(0,-2)],  # long leaper
@@ -407,9 +410,9 @@ def staticEval(state):
                     sum -= centralization_table[row][col]
 
                 if piece.isupper():
-                    sum += 2 * attacked_pieces(board_list, row, col)
+                    sum += 5 * attacked_pieces(board_list, row, col)
                 else:
-                    sum -= 2 * attacked_pieces(board_list, row, col)
+                    sum -= 5 * attacked_pieces(board_list, row, col)
     '''Compute a more thorough static evaluation of the given state.
     This is intended for normal competitive play.  How you design this
     function could have a significant impact on your player's ability

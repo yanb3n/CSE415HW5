@@ -32,16 +32,18 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
 
 adjacent_squares= [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]
 
-values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 100, 'C': 25, 'F': 20,
-              'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -100, 'c': -25, 'f': -20}
-centralization_table = [[-5, -5, -5, -5, -5, -5, -5, -5],
-                        [-5, -5, -5, -5, -5, -5, -5, -5],
-                        [0, 2, 2, 2, 2, 2, 2, 0],
-                        [0, 2, 4, 6, 6, 4, 2, 0],
-                        [0, 2, 4, 6, 6, 4, 2, 0],
-                        [0, 2, 2, 2, 2, 2, 2, 0],
-                        [-5, -5, -5, -5, -5, -5, -5, -5],
-                        [-5, -5, -5, -5, -5, -5, -5, -5]]
+values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
+              'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
+centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [2, 2, 2, 2, 2, 2, 2, 2],
+                        [2, 4, 6, 6, 6, 6, 4, 2],
+                        [2, 4, 6, 6, 6, 6, 4, 2],
+                        [2, 2, 2, 2, 2, 2, 2, 2],
+                        [0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0]]
+
+flatten = lambda l: [item for sublist in l for item in sublist]
 
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
@@ -176,8 +178,8 @@ def generate_moves(currentState):
                         if can_move(row_temp, col_temp, op, board_list):
                             row_temp += op[0]
                             col_temp += op[1]
-                            if (long_leaper_capturable(row, col, op, board_list) 
-                                and board_list[int(row + op[0] / 2)][int(col + op[1] / 2)].lower()) == 'l':
+                            if (board_list[int(row + op[0] / 2)][int(col + op[1] / 2)].lower() == 'l' and
+                                long_leaper_capturable(row, col, op, board_list)):
                                 new_board_state = [r[:] for r in board_list]
                                 new_board_state[row_temp][col_temp] = new_board_state[row][col]
                                 new_board_state[row][col] = '-'
@@ -292,7 +294,6 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
-            #print(nextMove[0][0])
             newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
             if newValue > best:
                 best = newValue
@@ -326,7 +327,7 @@ def makeMove(currentState, currentRemark, timelimit=1):
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState, 0, 0], '']]
-    while time.time() - start_time < timelimit and ply <= 1:
+    while time.time() - start_time < timelimit and ply <= 3:
         # [value, [[((old_spot), (new_spot)), newState], remark]]
         # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
         best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('-inf'), float('inf'))[1]
@@ -408,11 +409,10 @@ def staticEval(state):
                     sum += centralization_table[row][col]
                 else:
                     sum -= centralization_table[row][col]
-
                 if piece.isupper():
-                    sum += 5 * attacked_pieces(board_list, row, col)
+                    sum += 6 * attacked_pieces(board_list, row, col)
                 else:
-                    sum -= 5 * attacked_pieces(board_list, row, col)
+                    sum -= 6 * attacked_pieces(board_list, row, col)
     '''Compute a more thorough static evaluation of the given state.
     This is intended for normal competitive play.  How you design this
     function could have a significant impact on your player's ability
@@ -430,6 +430,7 @@ def attacked_pieces(board_list, row, col):
             if piece == 'w':
                 if withdrawer_capturable(row, col, op, board_list):
                     attacked += 1
+                    #print(attacked)
     return attacked
 
 def adjacent_pieces(board_list, row, col):

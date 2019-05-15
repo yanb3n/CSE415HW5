@@ -241,10 +241,10 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
     #else:
     #    kings_row = king_position[whose_move][0]
     #    kings_col = king_position[whose_move][1]
-    if (new_board_list[kings_row][c_new_col] != '-' 
+    if (new_board_list[kings_row][c_new_col] != '-' and c_new_col != kings_col
        and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([kings_row, c_new_col])
-    if (new_board_list[c_new_row][kings_col] != '-'
+    if (new_board_list[c_new_row][kings_col] != '-' and c_new_row != kings_row
        and new_board_list[c_new_col][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([c_new_col, kings_col])
     #print(capturable)

@@ -254,27 +254,27 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
 # Returns a list: [bestValue, [((), ()), newState]]
 # stateList: [((),()), BC.BC_state(new_board_state, 1 - whose_move)]
 def minimax(ply, stateList):
-    currentState = stateList[0][1]
+    currentState = stateList[1]
     # stateList[2] += 1
     if ply == 0:
         # stateList[3] += 1
         return [staticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
-    bestMove = newMoves[0]
+    bestMove = []
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
-            newValue = minimax(ply - 1, nextMove)
-            if newValue[0] > best:
-                best = newValue[0]
+            newValue = minimax(ply - 1, nextMove)[0]
+            if newValue > best:
+                best = newValue
                 bestMove = nextMove
         return [best, bestMove]
     else:
         best = float('inf')
         for nextMove in newMoves:
-            newValue = minimax(ply - 1, nextMove)
-            if newValue[0] > best:
-                best = newValue[0]
+            newValue = minimax(ply - 1, nextMove)[0]
+            if newValue < best:
+                best = newValue
                 bestMove = nextMove
         return [best, bestMove]
 
@@ -323,7 +323,7 @@ def makeMove(currentState, currentRemark, timelimit=1):
     start_time = time.time()
     ply = 1
     best_move = [0, [((), ()), currentState, 0, 0]]
-    while time.time() - start_time < timelimit and ply <= 1:
+    while time.time() - start_time < timelimit and ply <= 2:
         # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
         best_move = alphabeta_pruning(ply, [((), ()), newCurrentState], float('-inf'), float('inf'))[1]
         ply += 1

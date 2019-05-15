@@ -281,7 +281,9 @@ def minimax(ply, stateList):
 
 # Returns a list: [bestValue, [((), ()), newState]]
 # stateList: [((),()), BC.BC_state(new_board_state, 1 - whose_move)]
-def alphabeta_pruning(ply, stateList, alpha, beta):
+def alphabeta_pruning(ply, stateList, alpha, beta, start_time):
+    if time.time() - start_time > 0.9:
+        return
     currentState = stateList[1]
     if ply == 0:
         return [staticEval(currentState), stateList]
@@ -290,7 +292,10 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
-            newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
+            temp = alphabeta_pruning(ply - 1, nextMove, alpha, beta, start_time)
+            if temp == None:
+                return
+            newValue = temp[0]
             if newValue > best:
                 best = newValue
                 bestMove = nextMove
@@ -301,7 +306,10 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
     else:
         best = float('inf')
         for nextMove in newMoves:
-            newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
+            temp = alphabeta_pruning(ply - 1, nextMove, alpha, beta, start_time)
+            if temp == None:
+                return
+            newValue = temp[0]
             if newValue < best:
                 best = newValue
                 bestMove = nextMove
@@ -322,10 +330,13 @@ def makeMove(currentState, currentRemark, timelimit=1):
 
     start_time = time.time()
     ply = 1
-    best_move = [0, [((), ()), currentState, 0, 0]]
+    best_move = [0, [((), ()), currentState]]
     while time.time() - start_time < timelimit and ply <= 2:
-        # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
-        best_move = alphabeta_pruning(ply, [((), ()), newCurrentState], float('-inf'), float('inf'))[1]
+        # best_move = minimax(ply, [((), ()), newCurrentState])[1]
+        temp = alphabeta_pruning(ply, [((), ()), newCurrentState], float('-inf'), float('inf'), start_time)
+        if temp == None:
+            break
+        best_move = temp[1]
         ply += 1
 
     newState = best_move[1]
@@ -414,6 +425,8 @@ def staticEval(state):
     to win games.'''
     return sum
 
+
+# computes value for pieces that have a wider range of attack
 def attacked_pieces(board_list, row, col):
     piece = board_list[row][col].lower()
     attacked = 0
@@ -427,6 +440,8 @@ def attacked_pieces(board_list, row, col):
                     attacked += 1
     return attacked
 
+
+# computes value of proximity of pieces within another piece
 def adjacent_pieces(board_list, row, col):
     friendly_pieces = 0
     opposing_pieces = 0

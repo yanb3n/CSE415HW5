@@ -213,8 +213,8 @@ def timeout(func, args=(), kwargs={}, timeout_duration=1, default=None):
         print("Took too long.")
         print("We are now terminating the game.")
         print("Player "+str(CURRENT_PLAYER)+" loses.")
-        if USE_HTML: gameToHTML.reportResult("Player "+str(CURRENT_PLAYER)+" took too long (%04f seconds) and thus loses." % diff)
-        if USE_HTML: gameToHTML.endHTML()
+        #if USE_HTML: gameToHTML.reportResult("Player "+str(CURRENT_PLAYER)+" took too long (%04f seconds) and thus loses." % diff)
+        #if USE_HTML: gameToHTML.endHTML()
         exit()
     else:
         #print("Within the time limit -- nice!")

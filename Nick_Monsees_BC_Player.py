@@ -6,6 +6,7 @@ Ben Yan (yanb3@uw.edu).
 
 import BC_state_etc as BC
 import time
+import random
 
 global output
 WHITE = 1
@@ -244,10 +245,12 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
     #else:
     #    kings_row = king_position[whose_move][0]
     #    kings_col = king_position[whose_move][1]
-    if (new_board_list[kings_row][c_new_col] != '-' and c_new_col != kings_col
+    if c_new_col == kings_col and c_new_row == kings_row:
+        return capturable
+    if (new_board_list[kings_row][c_new_col] != '-'
        and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([kings_row, c_new_col])
-    if (new_board_list[c_new_row][kings_col] != '-' and c_new_row != kings_row
+    if (new_board_list[c_new_row][kings_col] != '-'
        and new_board_list[c_new_col][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([c_new_col, kings_col])
     #print(capturable)
@@ -258,9 +261,7 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
 # stateList: [((),()), BC.BC_state(new_board_state, 1 - whose_move)]
 def minimax(ply, stateList):
     currentState = stateList[1]
-    # stateList[2] += 1
     if ply == 0:
-        # stateList[3] += 1
         return [staticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     bestMove = []
@@ -289,19 +290,9 @@ def alphabeta_pruning(ply, stateList, alpha, beta, start_time):
         return
     currentState = stateList[1]
     if ply == 0:
-        #print("state evaluation started")
-        #eval_time = time.time() 
-        eval = [staticEval(currentState), stateList]
-        global states_evaluated
-        states_evaluated += 1
-        #print(states_evaluated)
-        #print("state eval took: " + str(time.time() - eval_time))
-
-        return eval
-    start_time = time.time() 
-    #print("move generation started")
+        return [staticEval(currentState), stateList]
+    start_time = time.time()
     newMoves = generate_moves(currentState)
-    #print("move generation took: " + str(time.time() - start_time))
     bestMove = []
     if currentState.whose_move == WHITE:
         best = float('-inf')
@@ -345,8 +336,6 @@ def makeMove(currentState, currentRemark, timelimit=1):
     start_time = time.time()
     ply = 1
     best_move = [0, [((), ()), currentState, 0, 0]]
-    global states_evaluated
-    states_evaluated = 0
     while time.time() - start_time < timelimit and ply <= 2:
         # best_move = minimax(ply, [((), ()), newCurrentState])[1]
         temp = alphabeta_pruning(ply, [((), ()), newCurrentState], float('-inf'), float('inf'), start_time)
@@ -370,7 +359,7 @@ def makeMove(currentState, currentRemark, timelimit=1):
     move = best_move[0]
 
     # Make up a new remark
-    newRemark = "I END MY TURN."
+    newRemark = random.choice(remarks)
     print("states evaluated: "  + str(states_evaluated))
     return [[move, newState], newRemark]
 

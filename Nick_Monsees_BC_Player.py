@@ -344,13 +344,9 @@ def makeMove(currentState, currentRemark, timelimit=1):
 
     start_time = time.time()
     ply = 1
-<<<<<<< HEAD
     best_move = [0, [((), ()), currentState, 0, 0]]
     global states_evaluated
     states_evaluated = 0
-=======
-    best_move = [0, [((), ()), currentState]]
->>>>>>> fbd2e88c5e248ec03ddaf8a459da82b331758180
     while time.time() - start_time < timelimit and ply <= 2:
         # best_move = minimax(ply, [((), ()), newCurrentState])[1]
         temp = alphabeta_pruning(ply, [((), ()), newCurrentState], float('-inf'), float('inf'), start_time)

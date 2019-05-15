@@ -31,18 +31,17 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
+    best_move = [0, [[((), ()), currentState, 0, 0], '']]
     if alphaBeta:
-        bestMove = alphabeta_pruning(ply, currentState, float('-inf'), float('inf'))[1][1]
+        bestMove = alphabeta_pruning(ply, [[((), ()), currentState], 'remark'], float('inf'), float('-inf'))[1]
     else:
-        bestMove = minimax(ply, currentState)[1]
+        bestMove = minimax(ply, [[((), ()), currentState], 'remark'])[1]
     if useBasicStaticEval:
-        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)
-    elif alphaBeta:
-        pass  # temporary
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove[0][1])
     elif useZobristHashing:
         pass  # temporary
-    output['N_STATES_EXPANDED'] = 0
-    output['N_STATIC_EVALS'] = 0
+    output['N_STATES_EXPANDED'] = bestMove[0][2]
+    output['N_STATIC_EVALS'] = bestMove[0][3]
     output['N_CUTOFFS'] = 0
     return output
 
@@ -190,11 +189,13 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
     return capturable
 
 
-# Returns a list of form [value, [[((old_spot), (new_spot)), newState], remark]]
+# Returns a list of form [value, [[((old_spot), (new_spot)), newState, states_expand, static_evals], remark]]
 # generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
 def minimax(ply, stateList):
     currentState = stateList[0][1]
+    stateList[0][2] += 1
     if ply == 0:
+        stateList[0][3] += 1
         return [basicStaticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     bestMove = newMoves[0]
@@ -227,7 +228,7 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
-            newValue = minimax(ply - 1, nextMove)[0]
+            newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
             if newValue > best:
                 best = newValue
                 bestMove = nextMove
@@ -238,7 +239,7 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
     else:
         best = float('inf')
         for nextMove in newMoves:
-            newValue = minimax(ply - 1, nextMove)[0]
+            newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
             if newValue > best:
                 best = newValue
                 bestMove = nextMove
@@ -259,8 +260,8 @@ def makeMove(currentState, currentRemark, timelimit=1):
 
     start_time = time.time()
     ply = 1
-    best_move = [0, [[((), ()), currentState], '']]
-    while time.time() - start_time < timelimit and ply <= 3:
+    best_move = [0, [[((), ()), currentState, 0, 0], '']]
+    while time.time() - start_time < timelimit and ply <= 4:
         # [value, [[((old_spot), (new_spot)), newState], remark]]
         # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
         best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('inf'), float('-inf'))[1]

@@ -144,7 +144,7 @@ def generate_moves(currentState):
                             new_board_state[row][col] = '-'
                             if piece.lower() == 'p':
                                 for op_cap in current_ops:
-                                    if pincer_capturable(row, col, op_cap, new_board_state):
+                                    if pincer_capturable(row_temp, col_temp, op_cap, new_board_state):
                                         new_board_state[row_temp + op_cap[0]][col_temp + op_cap[1]] = '-'
                             elif piece.lower() == 'w':
                                 if withdrawer_capturable(row, col, op, board_list):
@@ -210,8 +210,8 @@ def king_case(row, col, op, board_list):
 def withdrawer_capturable(row, col, op, board_list):
     new_row = row - op[0]
     new_col = col - op[0]
-    return ((((new_row >= 0) and (new_row < 8) and (new_col >= 0) and (new_col < 8)) and 
-    board_list[row][col].isupper() != board_list[new_row][new_col].isupper()))
+    return (((new_row >= 0) and (new_row < 8) and (new_col >= 0) and (new_col < 8)) and 
+    board_list[row][col].isupper() != board_list[new_row][new_col].isupper())
 
 
 # check if pincer move causes captures

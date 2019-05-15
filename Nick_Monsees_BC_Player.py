@@ -29,6 +29,17 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
 
 adjacent_squares= [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]
 
+values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
+              'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
+centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 1, 1, 1, 1, 1, 1, 0],
+                        [0, 1, 2, 2, 2, 2, 1, 0],
+                        [0, 1, 2, 3, 3, 2, 1, 0],
+                        [0, 1, 2, 3, 3, 2, 1, 0],
+                        [0, 1, 2, 2, 2, 2, 1, 0],
+                        [0, 1, 1, 1, 1, 1, 1, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0]]
+
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
@@ -38,6 +49,8 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
         bestMove = minimax(ply, currentState)[1]
     if useBasicStaticEval:
         output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)
+    else:
+        output['CURRENT_STATE_STATIC_EVAL'] = staticEval(bestMove)
     elif alphaBeta:
         pass  # temporary
     elif useZobristHashing:
@@ -332,16 +345,7 @@ def basicStaticEval(state):
 
 
 def staticEval(state):
-    values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
-              'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
-    centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 1, 1, 1, 1, 1, 1, 0],
-                            [0, 1, 2, 2, 2, 2, 1, 0],
-                            [0, 1, 2, 3, 3, 2, 1, 0],
-                            [0, 1, 2, 3, 3, 2, 1, 0],
-                            [0, 1, 2, 2, 2, 2, 1, 0],
-                            [0, 1, 1, 1, 1, 1, 1, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0]]
+    
 
     sum = 0
     board_list = state.board

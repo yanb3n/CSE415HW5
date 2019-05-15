@@ -29,8 +29,8 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
 
 adjacent_squares= [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]
 
-values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
-              'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
+values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 100, 'C': 25, 'F': 20,
+              'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -100, 'c': -25, 'f': -20}
 centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 2, 2, 2, 2, 2, 2, 0],
                         [0, 2, 4, 4, 4, 4, 2, 0],
@@ -79,10 +79,9 @@ def generate_moves(currentState):
             row_temp = row
             col_temp = col
             piece = board_list[row][col]
-            if (board_list[row][col] is not '-'):
+            if (board_list[row][col] is not '-' and not next_to_freezer(board_list, row_temp, col_temp)):
                 if (piece.lower() is 'k'
-                    and piece in pieces[whose_move]
-                    and not next_to_freezer(board_list, row_temp, col_temp)):
+                    and piece in pieces[whose_move]):
                     #king_position[whose_move] = [row, col]
                     #print(king_position)
                     for king_op in operators['k']:
@@ -97,8 +96,7 @@ def generate_moves(currentState):
                             possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
                                                     BC.BC_state(new_board_state, 1 - whose_move)]])
                 elif (piece.lower() == 'l' 
-                    and piece in pieces[whose_move] 
-                    and not next_to_freezer(board_list, row_temp, col_temp)):
+                    and piece in pieces[whose_move]):
                     current_ops = operators['p']
                     for op in current_ops:
                         row_temp = row
@@ -126,8 +124,7 @@ def generate_moves(currentState):
                             possible_moves.append([[((row, col),(row_temp, col_temp)),
                                                     BC.BC_state(new_board_state, 1 - whose_move)]])    
                 elif (piece.lower() != 'i' 
-                    and piece in pieces[whose_move] 
-                    and not next_to_freezer(board_list, row_temp, col_temp)):
+                    and piece in pieces[whose_move]):
                     current_ops = operators[board_list[row][col].lower()]
                     for op in current_ops:
                         row_temp = row
@@ -284,12 +281,15 @@ def minimax(ply, stateList):
 def alphabeta_pruning(ply, stateList, alpha, beta):
     currentState = stateList[0][1]
     if ply == 0:
+        #print(staticEval(currentState))
         return [staticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
+    
     bestMove = newMoves[0]
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
+            #print(nextMove[0][0])
             newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
             if newValue > best:
                 best = newValue
@@ -323,12 +323,12 @@ def makeMove(currentState, currentRemark, timelimit=1):
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState, 0, 0], '']]
-    while time.time() - start_time < timelimit and ply <= 4:
+    while time.time() - start_time < timelimit and ply <= 1:
         # [value, [[((old_spot), (new_spot)), newState], remark]]
         # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
-        best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('inf'), float('-inf'))[1]
+        best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('-inf'), float('inf'))[1]
         ply += 1
-
+    
     newState = best_move[0][1]
     newBoard = newState.board
     for r in range(8):
@@ -345,7 +345,7 @@ def makeMove(currentState, currentRemark, timelimit=1):
 
     # Make up a new remark
     newRemark = "I END MY TURN."
-
+    #print(best_move[0])
     return [[move, newState], newRemark]
 
 

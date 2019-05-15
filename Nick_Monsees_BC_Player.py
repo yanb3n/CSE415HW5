@@ -27,6 +27,18 @@ operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
              'c':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)],  # coordinator
              'f':[(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]}  # freezer
 
+adjacent_squares= [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]
+
+values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
+              'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
+centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0],
+                        [0, 1, 1, 1, 1, 1, 1, 0],
+                        [0, 1, 2, 2, 2, 2, 1, 0],
+                        [0, 1, 2, 3, 3, 2, 1, 0],
+                        [0, 1, 2, 3, 3, 2, 1, 0],
+                        [0, 1, 2, 2, 2, 2, 1, 0],
+                        [0, 1, 1, 1, 1, 1, 1, 0],
+                        [0, 0, 0, 0, 0, 0, 0, 0]]
 
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
@@ -83,7 +95,7 @@ def generate_moves(currentState):
                             new_board_state[row_temp][col_temp] = new_board_state[row][col]
                             new_board_state[row][col] = '-'
                             possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
-                                                    BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
+                                                    BC.BC_state(new_board_state, 1 - whose_move)]])
                 elif (piece.lower() == 'l' 
                     and piece in pieces[whose_move] 
                     and not next_to_freezer(board_list, row_temp, col_temp)):
@@ -121,7 +133,7 @@ def generate_moves(currentState):
                                 for captured in capture:
                                     new_board_state[captured[0]][captured[1]] = '-'
                             possible_moves.append([[((row, col),(row_temp, col_temp)),
-                                                    BC.BC_state(new_board_state, 1 - whose_move)],"lmao"])
+                                                    BC.BC_state(new_board_state, 1 - whose_move)]])
     return possible_moves
 
 
@@ -165,7 +177,7 @@ def long_leaper_capturable(row, col, op, board_list):
     return (board_list[row][col].isupper() != board_list[new_row][new_col].isupper())
 
 
-# Checks for whether there is a capturable piece by a move of the coordinator
+# Checks for whether there is a capturable piece by a move of the cinator
 # Returns the (rank, file) of a piece if capturable; if none, returns empty list
 def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, whose_move):
     capturable = []
@@ -332,31 +344,50 @@ def basicStaticEval(state):
 
 
 def staticEval(state):
-    values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
-              'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
-    centralization_bonus = {}
-    centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0, 0],
-                            [0, 1, 1, 1, 1, 1, 1, 1, 0],
-                            [0, 1, 2, 2, 0, 0, 0, 1, 0],
-                            [0, 1, 2, 0, 0, 0, 0, 1, 0],
-                            [0, 1, 2, 0, 0, 0, 0, 1, 0],
-                            [0, 1, 2, 0, 0, 0, 0, 1, 0],
-                            [0, 1, 1, 1, 1, 1, 1, 1, 0],
-                            [0, 0, 0, 0, 0, 0, 0, 0, 0]]
+
 
     sum = 0
     board_list = state.board
     for row in range(8):
         for col in range(8):
-            if board_list[row][col] != '-':
+            piece = board_list[row][col]
+            if piece != '-' and not next_to_freezer(board_list, row, col):
                 sum += values[board_list[row][col]]
+                if piece.isupper():
+                    sum += centralization_table[row][col]
+                else:
+                    sum -= centralization_table[row][col]
+
+                if piece.isupper():
+                    sum += 2 * attacked_pieces(board_list, row, col)
+                else:
+                    sum -= 2 * attacked_pieces(board_list, row, col)
     '''Compute a more thorough static evaluation of the given state.
     This is intended for normal competitive play.  How you design this
     function could have a significant impact on your player's ability
     to win games.'''
     return sum
 
-def freezer_bonus(board_list, row, col):
-    bonus = 0
+def attacked_pieces(board_list, row, col):
+    piece = board_list[row][col].lower()
+    attacked = 0
+    for op in operators[piece]:
+        if can_move(row, col, op, board_list):
+            if piece == 'l':
+                if long_leaper_capturable(row, col, op, board_list):
+                    attacked += 1
+            if piece == 'w':
+                if withdrawer_capturable(row, col, op, board_list):
+                    attacked += 1
 
-    return bonus
+def adjacent_pieces(board_list, row, col):
+    friendly_pieces = 0
+    opposing_pieces = 0
+    for square in adjacent_squares:
+        if ((row + square[0] >= 0) and (row + square[0] < 8) and (col + square[1] >= 0)
+           and (col + square[1] < 8) and board_list[row + square[0]][col + square[1]] != '-'):
+            if board_list[row][col].isupper() == board_list[row + square[0]][col + square[1]].isupper():
+                friendly_pieces += 1
+            else:
+                opposing_pieces += 1
+    return [friendly_pieces, opposing_pieces]

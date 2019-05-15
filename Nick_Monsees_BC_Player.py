@@ -96,8 +96,8 @@ def generate_moves(currentState):
                             new_board_state = [r[:] for r in board_list]
                             new_board_state[row_temp][col_temp] = new_board_state[row][col]
                             new_board_state[row][col] = '-'
-                            possible_moves.append([[((row, col),(row_temp, col_temp)),
-                                                    BC.BC_state(new_board_state, 1 - whose_move)]])
+                            possible_moves.append([((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)])
                 elif (piece.lower() == 'l' 
                     and piece in pieces[whose_move]):
                     current_ops = operators['p']
@@ -111,8 +111,8 @@ def generate_moves(currentState):
                             new_board_state = [r[:] for r in board_list]
                             new_board_state[row_temp][col_temp] = new_board_state[row][col]
                             new_board_state[row][col] = '-'
-                            possible_moves.append([[((row, col),(row_temp, col_temp)),
-                                                    BC.BC_state(new_board_state, 1 - whose_move)]]) 
+                            possible_moves.append([((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)])
                     for op in operators['l']:
                         row_temp = row
                         col_temp = col
@@ -124,8 +124,8 @@ def generate_moves(currentState):
                             new_board_state[row_temp][col_temp] = new_board_state[row][col]
                             new_board_state[row][col] = '-'
                             new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
-                            possible_moves.append([[((row, col),(row_temp, col_temp)),
-                                                    BC.BC_state(new_board_state, 1 - whose_move)]])    
+                            possible_moves.append([((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)])
                 elif (piece.lower() != 'i' 
                     and piece in pieces[whose_move]):
                     current_ops = operators[board_list[row][col].lower()]
@@ -152,8 +152,8 @@ def generate_moves(currentState):
 
                                 for captured in capture:
                                     new_board_state[captured[0]][captured[1]] = '-'
-                            possible_moves.append([[((row, col),(row_temp, col_temp)),
-                                                    BC.BC_state(new_board_state, 1 - whose_move)]])
+                            possible_moves.append([((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)])
                 elif (piece.lower() == 'i' 
                     and piece in pieces[whose_move] 
                     and not next_to_freezer(board_list, row_temp, col_temp)):
@@ -168,8 +168,8 @@ def generate_moves(currentState):
                             new_board_state = [r[:] for r in board_list]
                             new_board_state[row_temp][col_temp] = new_board_state[row][col]
                             new_board_state[row][col] = '-'
-                            possible_moves.append([[((row, col),(row_temp, col_temp)),
-                                BC.BC_state(new_board_state, 1 - whose_move)]])
+                            possible_moves.append([((row, col),(row_temp, col_temp)),
+                                BC.BC_state(new_board_state, 1 - whose_move)])
                     for op in operators['l']:
                         row_temp = row
                         col_temp = col
@@ -182,8 +182,8 @@ def generate_moves(currentState):
                                 new_board_state[row_temp][col_temp] = new_board_state[row][col]
                                 new_board_state[row][col] = '-'
                                 new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
-                                possible_moves.append([[((row, col),(row_temp, col_temp)),
-                                                    BC.BC_state(new_board_state, 1 - whose_move)]])
+                                possible_moves.append([((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)])
                     
     return possible_moves
 
@@ -279,20 +279,17 @@ def minimax(ply, stateList):
         return [best, bestMove]
 
 
-# Returns a list: [bestValue, [[((old_spot), (new_spot)), newState], remark]]
-# stateList: [[((row, col),(row_temp, col_temp)), newState, 1 - whose_move)],"lmao"]
+# Returns a list: [bestValue, [((), ()), newState]]
+# stateList: [((),()), BC.BC_state(new_board_state, 1 - whose_move)]
 def alphabeta_pruning(ply, stateList, alpha, beta):
-    currentState = stateList[0][1]
+    currentState = stateList[1]
     if ply == 0:
-        #print(staticEval(currentState))
         return [staticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
-    
-    bestMove = newMoves[0]
+    bestMove = []
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
-            #print(nextMove[0][0])
             newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
             if newValue > best:
                 best = newValue
@@ -305,7 +302,7 @@ def alphabeta_pruning(ply, stateList, alpha, beta):
         best = float('inf')
         for nextMove in newMoves:
             newValue = alphabeta_pruning(ply - 1, nextMove, alpha, beta)[0]
-            if newValue > best:
+            if newValue < best:
                 best = newValue
                 bestMove = nextMove
             beta = max(beta, best)
@@ -325,14 +322,13 @@ def makeMove(currentState, currentRemark, timelimit=1):
 
     start_time = time.time()
     ply = 1
-    best_move = [0, [[((), ()), currentState, 0, 0], '']]
+    best_move = [0, [((), ()), currentState, 0, 0]]
     while time.time() - start_time < timelimit and ply <= 1:
-        # [value, [[((old_spot), (new_spot)), newState], remark]]
         # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
-        best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('-inf'), float('inf'))[1]
+        best_move = alphabeta_pruning(ply, [((), ()), newCurrentState], float('-inf'), float('inf'))[1]
         ply += 1
-    
-    newState = best_move[0][1]
+
+    newState = best_move[1]
     newBoard = newState.board
     for r in range(8):
         for c in range(8):
@@ -344,11 +340,10 @@ def makeMove(currentState, currentRemark, timelimit=1):
 
     # Construct a representation of the move that goes from the
     # currentState to the newState.
-    move = best_move[0][0]
+    move = best_move[0]
 
     # Make up a new remark
     newRemark = "I END MY TURN."
-    #print(best_move[0])
     return [[move, newState], newRemark]
 
 

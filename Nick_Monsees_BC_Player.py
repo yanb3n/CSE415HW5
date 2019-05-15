@@ -132,8 +132,8 @@ def generate_moves(currentState):
                                 capture = coordinator_capturable(row_temp, col_temp, new_board_state, king_position, whose_move)
                                 for captured in capture:
                                     new_board_state[captured[0]][captured[1]] = '-'
-                            possible_moves.append([[((row, col),(row_temp, col_temp)),
-                                                    BC.BC_state(new_board_state, 1 - whose_move)]])
+                            possible_moves.append([((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)])
     return possible_moves
 
 
@@ -205,15 +205,16 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
 # generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
 def minimax(ply, stateList):
     currentState = stateList[0][1]
-    stateList[0][2] += 1
     if ply == 0:
-        stateList[0][3] += 1
+        stateList[1][0][2] += 1
+        stateList[1][0][3] += 1
         return [basicStaticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     bestMove = newMoves[0]
     if currentState.whose_move == WHITE:
         best = float('-inf')
         for nextMove in newMoves:
+            nextMove.append(0)
             newValue = minimax(ply - 1, nextMove)
             if newValue[0] > best:
                 best = newValue[0]
@@ -273,10 +274,10 @@ def makeMove(currentState, currentRemark, timelimit=1):
     start_time = time.time()
     ply = 1
     best_move = [0, [[((), ()), currentState, 0, 0], '']]
-    while time.time() - start_time < timelimit and ply <= 4:
+    while time.time() - start_time < timelimit and ply <= 10:
         # [value, [[((old_spot), (new_spot)), newState], remark]]
-        # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
-        best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState], 'remark'], float('inf'), float('-inf'))[1]
+        best_move = minimax(ply, [[((), ()), newCurrentState, 0, 0], 'remark'])[1]
+        # best_move = alphabeta_pruning(ply, [[((), ()), newCurrentState, 0, 0], 'remark'], float('inf'), float('-inf'))[1]
         ply += 1
 
     newState = best_move[0][1]

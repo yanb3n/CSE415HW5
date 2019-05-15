@@ -72,9 +72,8 @@ def generate_moves(currentState):
     board_list = currentState.board  # list of current board positions in row-major order
     whose_move = currentState.whose_move
     possible_moves = []
-    king_position = [[0 for x in range(2)] for x in range(2)]
-    king_position[WHITE] = [-1, -1]
-    king_position[BLACK] = [-1, -1]
+    #king_position = [[-1, -1], [-1, -1]]]
+    
     for row in range(8):
         for col in range(8):
             row_temp = row
@@ -84,7 +83,8 @@ def generate_moves(currentState):
                 if (piece.lower() is 'k'
                     and piece in pieces[whose_move]
                     and not next_to_freezer(board_list, row_temp, col_temp)):
-                    king_position[whose_move] = [row, col]
+                    #king_position[whose_move] = [row, col]
+                    #print(king_position)
                     for king_op in operators['k']:
                         row_temp = row
                         col_temp = col
@@ -99,17 +99,30 @@ def generate_moves(currentState):
                 elif (piece.lower() == 'l' 
                     and piece in pieces[whose_move] 
                     and not next_to_freezer(board_list, row_temp, col_temp)):
+                    current_ops = operators['p']
+                    for op in current_ops:
+                        row_temp = row
+                        col_temp = col
+                        while can_move(row_temp, col_temp, op, board_list):
+                            row_temp += op[0]
+                            col_temp += op[1]
+                            #ending_square = index_to_notation(row_temp, col_temp)
+                            new_board_state = [r[:] for r in board_list]
+                            new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                            new_board_state[row][col] = '-'
+                            possible_moves.append([[((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)]]) 
                     for op in operators['l']:
                         row_temp = row
                         col_temp = col
-                        if can_move(row_temp, col_temp, op, board_list):
+                        if (can_move(row_temp, col_temp, op, board_list)
+                            and long_leaper_capturable(row, col, op, board_list)):
                             row_temp += op[0]
                             col_temp += op[1]
                             new_board_state = [r[:] for r in board_list]
                             new_board_state[row_temp][col_temp] = new_board_state[row][col]
                             new_board_state[row][col] = '-'
-                            if long_leaper_capturable(row, col, op, board_list):
-                                new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
+                            new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
                             possible_moves.append([[((row, col),(row_temp, col_temp)),
                                                     BC.BC_state(new_board_state, 1 - whose_move)]])    
                 elif (piece.lower() != 'i' 
@@ -134,7 +147,9 @@ def generate_moves(currentState):
                                 if withdrawer_capturable(row, col, op, board_list):
                                     new_board_state[row - op[0]][col - op[1]] = '-'
                             elif piece.lower() == 'c':
-                                capture = coordinator_capturable(row_temp, col_temp, new_board_state, king_position, whose_move)
+                                #capture = coordinator_capturable(row_temp, col_temp, new_board_state, king_position, whose_move)
+                                capture = coordinator_capturable(row_temp, col_temp, new_board_state, whose_move)
+
                                 for captured in capture:
                                     new_board_state[captured[0]][captured[1]] = '-'
                             possible_moves.append([[((row, col),(row_temp, col_temp)),
@@ -215,25 +230,24 @@ def long_leaper_capturable(row, col, op, board_list):
 
 # Checks for whether there is a capturable piece by a move of the cinator
 # Returns the (rank, file) of a piece if capturable; if none, returns empty list
-def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, whose_move):
+def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
     capturable = []
-    kings_row = 0
-    kings_col = 0
-    if king_position[whose_move] is [-1, -1]:
-        for r in range(8):
-            for c in range(8):
-                if new_board_list[r][c] == pieces[whose_move][KING]:
-                    kings_row = r
-                    kings_col = c
-    else:
-        kings_row = king_position[whose_move][0]
-        kings_col = king_position[whose_move][1]
+    #if king_position[whose_move] is [-1, -1]:
+    for r in range(8):
+        for c in range(8):
+            if new_board_list[r][c] == pieces[whose_move][KING]:
+                kings_row = r
+                kings_col = c
+    #else:
+    #    kings_row = king_position[whose_move][0]
+    #    kings_col = king_position[whose_move][1]
     if (new_board_list[kings_row][c_new_col] != '-' 
        and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([kings_row, c_new_col])
     if (new_board_list[c_new_row][kings_col] != '-'
        and new_board_list[c_new_col][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
         capturable.append([c_new_col, kings_col])
+    #print(capturable)
     return capturable
 
 
@@ -380,8 +394,6 @@ def basicStaticEval(state):
 
 
 def staticEval(state):
-
-
     sum = 0
     board_list = state.board
     for row in range(8):

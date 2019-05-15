@@ -51,7 +51,7 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
         output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove)
     else:
         output['CURRENT_STATE_STATIC_EVAL'] = staticEval(bestMove)
-    elif alphaBeta:
+    if alphaBeta:
         pass  # temporary
     elif useZobristHashing:
         pass  # temporary
@@ -108,9 +108,14 @@ def generate_moves(currentState):
                         if can_move(row_temp, col_temp, op, board_list):
                             row_temp += op[0]
                             col_temp += op[1]
+                            new_board_state = [r[:] for r in board_list]
+                            new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                            new_board_state[row][col] = '-'
                             if long_leaper_capturable(row, col, op, board_list):
                                 new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
-                elif (piece.lower() != 'k' 
+                            possible_moves.append([[((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)]])    
+                elif (piece.lower() != 'i' 
                     and piece in pieces[whose_move] 
                     and not next_to_freezer(board_list, row_temp, col_temp)):
                     current_ops = operators[board_list[row][col].lower()]
@@ -137,6 +142,37 @@ def generate_moves(currentState):
                                     new_board_state[captured[0]][captured[1]] = '-'
                             possible_moves.append([[((row, col),(row_temp, col_temp)),
                                                     BC.BC_state(new_board_state, 1 - whose_move)]])
+                elif (piece.lower() == 'i' 
+                    and piece in pieces[whose_move] 
+                    and not next_to_freezer(board_list, row_temp, col_temp)):
+                    current_ops = operators['p']
+                    for op in current_ops:
+                        row_temp = row
+                        col_temp = col
+                        while can_move(row_temp, col_temp, op, board_list):
+                            row_temp += op[0]
+                            col_temp += op[1]
+                            #ending_square = index_to_notation(row_temp, col_temp)
+                            new_board_state = [r[:] for r in board_list]
+                            new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                            new_board_state[row][col] = '-'
+                            possible_moves.append([[((row, col),(row_temp, col_temp)),
+                                BC.BC_state(new_board_state, 1 - whose_move)]])
+                    for op in operators['l']:
+                        row_temp = row
+                        col_temp = col
+                        if can_move(row_temp, col_temp, op, board_list):
+                            row_temp += op[0]
+                            col_temp += op[1]
+                            if (long_leaper_capturable(row, col, op, board_list) 
+                                and board_list[int(row + op[0] / 2)][int(col + op[1] / 2)].lower()) == 'l':
+                                new_board_state = [r[:] for r in board_list]
+                                new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                                new_board_state[row][col] = '-'
+                                new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
+                                possible_moves.append([[((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)]])
+                    
     return possible_moves
 
 
@@ -209,7 +245,7 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, king_position, 
 def minimax(ply, stateList):
     currentState = stateList[0][1]
     if ply == 0:
-        return [basicStaticEval(currentState), stateList]
+        return [staticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     bestMove = newMoves[0]
     if currentState.whose_move == WHITE:
@@ -235,7 +271,7 @@ def minimax(ply, stateList):
 def alphabeta_pruning(ply, stateList, alpha, beta):
     currentState = stateList[0][1]
     if ply == 0:
-        return [basicStaticEval(currentState), stateList]
+        return [staticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     bestMove = newMoves[0]
     if currentState.whose_move == WHITE:
@@ -380,6 +416,7 @@ def attacked_pieces(board_list, row, col):
             if piece == 'w':
                 if withdrawer_capturable(row, col, op, board_list):
                     attacked += 1
+    return attacked
 
 def adjacent_pieces(board_list, row, col):
     friendly_pieces = 0

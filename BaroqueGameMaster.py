@@ -14,15 +14,16 @@ TURN_LIMIT = 5      # Good for testing.
 #TURN_LIMIT = 100 # Terminates runaway games.
 
 # Get names of players and time limit from the command line.
+'''
 if len(sys.argv) > 1:
     import importlib    
     player1 = importlib.import_module(sys.argv[1])
     player2 = importlib.import_module(sys.argv[2])
     if len(sys.argv) > 3:
         TIME_PER_MOVE = float(sys.argv[3])
-else:
-    import Nick_Monsees_BC_Player as player1
-    import PlayerSkeletonB as player2
+else:'''
+import Nick_Monsees_BC_Player as player1
+import PlayerSkeletonB as player2
 
 import BC_state_etc as BC
 

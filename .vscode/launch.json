@@ -5,11 +5,12 @@
     "version": "0.2.0",
     "configurations": [
 
+
         {
             "name": "Run Game",
             "type": "python",
             "request": "launch",
-            "program": "C:\\Users\\Ben\\Documents\\CS415HW\\HW5\\CSE415HW5\\BaroqueGameMaster.py",
+            "program": "C:\\Users\\Ben\\Documents\\CS415HW\\HW5\\CSE415HW5\\BaroqueGameMaster_V02.py",
             "console": "integratedTerminal"
         }
     ]

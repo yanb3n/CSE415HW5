@@ -46,17 +46,17 @@ centralization_table = [[-5, -5, -5, -5, -5, -5, -5, -5],
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
-    best_move = [0, [[((), ()), currentState, 0, 0], '']]
+    best_move = [0, [((), ()), currentState, 0, 0]]
     if alphaBeta:
         bestMove = alphabeta_pruning(ply, [[((), ()), currentState], 'remark'], float('inf'), float('-inf'))[1]
     else:
         bestMove = minimax(ply, [[((), ()), currentState], 'remark'])[1]
     if useBasicStaticEval:
-        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove[0][1])
+        output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove[1])
     elif useZobristHashing:
         pass  # temporary
-    output['N_STATES_EXPANDED'] = bestMove[0][2]
-    output['N_STATIC_EVALS'] = bestMove[0][3]
+    output['N_STATES_EXPANDED'] = bestMove[2]
+    output['N_STATIC_EVALS'] = bestMove[3]
     output['N_CUTOFFS'] = 0
     return output
 
@@ -251,13 +251,13 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
     return capturable
 
 
-# Returns a list of form [value, [[((old_spot), (new_spot)), newState, states_expand, static_evals], remark]]
-# generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
+# Returns a list: [bestValue, [((), ()), newState]]
+# stateList: [((),()), BC.BC_state(new_board_state, 1 - whose_move)]
 def minimax(ply, stateList):
     currentState = stateList[0][1]
-    # stateList[0][2] += 1
+    # stateList[2] += 1
     if ply == 0:
-        # stateList[0][3] += 1
+        # stateList[3] += 1
         return [staticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     bestMove = newMoves[0]

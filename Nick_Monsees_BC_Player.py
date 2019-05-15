@@ -31,14 +31,14 @@ adjacent_squares= [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]
 
 values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 100, 'C': 25, 'F': 20,
               'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -100, 'c': -25, 'f': -20}
-centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0],
+centralization_table = [[-5, -5, -5, -5, -5, -5, -5, -5],
+                        [-5, -5, -5, -5, -5, -5, -5, -5],
                         [0, 2, 2, 2, 2, 2, 2, 0],
-                        [0, 2, 4, 4, 4, 4, 2, 0],
                         [0, 2, 4, 6, 6, 4, 2, 0],
                         [0, 2, 4, 6, 6, 4, 2, 0],
-                        [0, 2, 4, 4, 2, 2, 2, 0],
                         [0, 2, 2, 2, 2, 2, 2, 0],
-                        [0, 0, 0, 0, 0, 0, 0, 0]]
+                        [-5, -5, -5, -5, -5, -5, -5, -5],
+                        [-5, -5, -5, -5, -5, -5, -5, -5]]
 
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
@@ -80,7 +80,7 @@ def generate_moves(currentState):
             col_temp = col
             piece = board_list[row][col]
             if (board_list[row][col] is not '-' and not next_to_freezer(board_list, row_temp, col_temp)):
-                if (piece.lower() is 'k'
+                if (piece.lower() == 'k'
                     and piece in pieces[whose_move]):
                     #king_position[whose_move] = [row, col]
                     #print(king_position)
@@ -93,7 +93,7 @@ def generate_moves(currentState):
                             new_board_state = [r[:] for r in board_list]
                             new_board_state[row_temp][col_temp] = new_board_state[row][col]
                             new_board_state[row][col] = '-'
-                            possible_moves.append([[((row, col),(row + king_op[0], col + king_op[1])),
+                            possible_moves.append([[((row, col),(row_temp, col_temp)),
                                                     BC.BC_state(new_board_state, 1 - whose_move)]])
                 elif (piece.lower() == 'l' 
                     and piece in pieces[whose_move]):
@@ -205,7 +205,7 @@ def withdrawer_capturable(row, col, op, board_list):
     new_row = row - op[0]
     new_col = col - op[0]
     return ((((new_row >= 0) and (new_row < 8) and (new_col >= 0) and (new_col < 8)) and 
-    board_list[row][col].isupper() != board_list[row - op[0]][col - op[1]].isupper()))
+    board_list[row][col].isupper() != board_list[new_row][new_col].isupper()))
 
 
 # check if pincer move causes captures

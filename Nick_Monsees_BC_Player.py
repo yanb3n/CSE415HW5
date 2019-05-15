@@ -252,10 +252,10 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
 # generate_moves: [[(old_spot, new_spot), newState, 1 - whose_move)], remark]
 def minimax(ply, stateList):
     currentState = stateList[0][1]
-    stateList[0][2] += 1
+    # stateList[0][2] += 1
     if ply == 0:
-        stateList[0][3] += 1
-        return [basicStaticEval(currentState), stateList]
+        # stateList[0][3] += 1
+        return [staticEval(currentState), stateList]
     newMoves = generate_moves(currentState)
     bestMove = newMoves[0]
     if currentState.whose_move == WHITE:

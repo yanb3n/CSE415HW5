@@ -22,6 +22,7 @@ remarks = ['Really now?', 'Is that all you\'ve got?', 'Are you sure about that m
            'You sure you don\'t want to take that back?', 'Who taught you how to play?', 'Did you miss a move?', 'What do you think about this?',
             'Don\'t you just love this game?', 'How are you feeling about this move?']
 
+states_evaluated = 0
 operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
              'l':[(2,0),(0,2),(-2,0),(0,-2)],  # long leaper
              'i':[],  # imitator (1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1),(2,0),(0,2),(-2,0),(0,-2)
@@ -286,8 +287,19 @@ def minimax(ply, stateList):
 def alphabeta_pruning(ply, stateList, alpha, beta):
     currentState = stateList[1]
     if ply == 0:
-        return [staticEval(currentState), stateList]
+        #print("state evaluation started")
+        #eval_time = time.time() 
+        eval = [staticEval(currentState), stateList]
+        global states_evaluated
+        states_evaluated += 1
+        #print(states_evaluated)
+        #print("state eval took: " + str(time.time() - eval_time))
+
+        return eval
+    start_time = time.time() 
+    #print("move generation started")
     newMoves = generate_moves(currentState)
+    #print("move generation took: " + str(time.time() - start_time))
     bestMove = []
     if currentState.whose_move == WHITE:
         best = float('-inf')
@@ -325,6 +337,8 @@ def makeMove(currentState, currentRemark, timelimit=1):
     start_time = time.time()
     ply = 1
     best_move = [0, [((), ()), currentState, 0, 0]]
+    global states_evaluated
+    states_evaluated = 0
     while time.time() - start_time < timelimit and ply <= 2:
         # best_move = minimax(ply, [[((), ()), newCurrentState], 'remark'])[1]
         best_move = alphabeta_pruning(ply, [((), ()), newCurrentState], float('-inf'), float('inf'))[1]
@@ -346,6 +360,7 @@ def makeMove(currentState, currentRemark, timelimit=1):
 
     # Make up a new remark
     newRemark = "I END MY TURN."
+    print("states evaluated: "  + str(states_evaluated))
     return [[move, newState], newRemark]
 
 

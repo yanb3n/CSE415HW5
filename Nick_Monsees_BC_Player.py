@@ -36,10 +36,10 @@ values = {'P': 10, 'L': 25, 'I': 10, 'W': 20, 'K': 1000, 'C': 25, 'F': 20,
               'p': -10, 'l': -25, 'i': -10, 'w': -20, 'k': -1000, 'c': -25, 'f': -20}
 centralization_table = [[0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0],
-                        [2, 2, 2, 2, 2, 2, 2, 2],
-                        [2, 4, 6, 6, 6, 6, 4, 2],
-                        [2, 4, 6, 6, 6, 6, 4, 2],
-                        [2, 2, 2, 2, 2, 2, 2, 2],
+                        [1, 2, 2, 2, 2, 2, 2, 1],
+                        [1, 4, 4, 6, 6, 4, 4, 1],
+                        [1, 4, 4, 6, 6, 6, 4, 1],
+                        [1, 2, 2, 2, 2, 2, 2, 1],
                         [0, 0, 0, 0, 0, 0, 0, 0],
                         [0, 0, 0, 0, 0, 0, 0, 0]]
 
@@ -463,9 +463,9 @@ def staticEval(state):
                 else:
                     sum -= centralization_table[row][col]
                 if piece.isupper():
-                    sum += 6 * attacked_pieces(board_list, row, col)
+                    sum += 8 * attacked_pieces(board_list, row, col)
                 else:
-                    sum -= 6 * attacked_pieces(board_list, row, col)
+                    sum -= 8 * attacked_pieces(board_list, row, col)
     '''Compute a more thorough static evaluation of the given state.
     This is intended for normal competitive play.  How you design this
     function could have a significant impact on your player's ability

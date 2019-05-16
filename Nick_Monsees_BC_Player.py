@@ -260,12 +260,11 @@ def long_leaper_capturable(row, col, op, board_list):
 def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
     capturable = []
     #if king_position[whose_move] is [-1, -1]:
-    kings_col = 0
-    kings_row = 0
+    kings_col = -1   
+    kings_row = -1
     for r in range(8):
         for c in range(8):
-            if (new_board_list[r][c].islower() == 'k'
-                and new_board_list[r][c].islower() == new_board_list[c_new_col][c_new_row].islower()):
+            if (new_board_list[r][c] == pieces[whose_move][KING]):
                 kings_row = r
                 kings_col = c
     #else:

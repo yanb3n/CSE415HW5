@@ -62,33 +62,22 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
     output['N_CUTOFFS'] = 0
     return output
 
-
 def next_to_freezer(board_list, row, col):
-    for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
-        if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
-           and (col + op[1] < 8)):
-            if (board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper() and
-                    board_list[row + op[0]][col + op[1]].lower() == 'f'):
-                return True
-    return False
+    return next_to_piece(board_list, row, col, 'f')
 
 def next_to_imitator(board_list, row, col):
-    for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
-        if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
-           and (col + op[1] < 8)):
-            if (board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper() and
-                    board_list[row + op[0]][col + op[1]].lower() == 'i'):
-                return True
-    return False
+    return next_to_piece(board_list, row, col, 'i')
 
+# this method is
 def next_to_piece(board_list, row, col, piece):
-    for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
+    for op in [(1, 1), (-1, -1), (1, 0), (0, 1), (-1, 0), (0, -1), (1, -1), (-1, 1)]:
         if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
-           and (col + op[1] < 8)):
+            and (col + op[1] < 8)):
             if (board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper() and
                     board_list[row + op[0]][col + op[1]].lower() == piece):
                 return True
     return False
+
 def generate_moves(currentState):
     board_list = currentState.board  # list of current board positions in row-major order
     whose_move = currentState.whose_move
@@ -159,7 +148,7 @@ def generate_moves(currentState):
                             new_board_state[row][col] = '-'
                     possible_moves.append([((row, col),(row_temp, col_temp)),
                                                     BC.BC_state(new_board_state, 1 - whose_move)])
-                elif (piece.lower() != 'i' 
+                elif (piece.lower() != 'i'
                     and piece.lower() != 'f'
                     and piece in pieces[whose_move]):
                     current_ops = operators[board_list[row][col].lower()]
@@ -186,7 +175,7 @@ def generate_moves(currentState):
 
                                 for captured in capture:
                                     new_board_state[captured[0]][captured[1]] = '-'
-                            
+
                             possible_moves.append([((row, col),(row_temp, col_temp)),
                                                     BC.BC_state(new_board_state, 1 - whose_move)])
                 elif (piece.lower() == 'i' 
@@ -279,12 +268,11 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
     #    kings_row = king_position[whose_move][0]
     #    kings_col = king_position[whose_move][1]
     if c_new_col != kings_col and c_new_row != kings_row:
-        #return capturable
         if (new_board_list[kings_row][c_new_col] != '-'
-        and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
+            and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
             capturable.append([kings_row, c_new_col])
         if (new_board_list[c_new_row][kings_col] != '-'
-        and new_board_list[c_new_col][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
+            and new_board_list[c_new_col][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
             capturable.append([c_new_col, kings_col])
     #print(capturable)
     return capturable

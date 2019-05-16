@@ -74,6 +74,14 @@ def next_to_freezer(board_list, row, col):
                 return True
     return False
 
+def next_to_imitator(board_list, row, col):
+    for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
+        if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
+           and (col + op[1] < 8)):
+            if (board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper() and
+                    board_list[row + op[0]][col + op[1]].lower() == 'i'):
+                return True
+    return False
 
 def generate_moves(currentState):
     board_list = currentState.board  # list of current board positions in row-major order
@@ -86,6 +94,7 @@ def generate_moves(currentState):
             row_temp = row
             col_temp = col
             piece = board_list[row][col]
+
             if (board_list[row][col] is not '-' and not next_to_freezer(board_list, row_temp, col_temp)):
                 if (piece.lower() == 'k'
                     and piece in pieces[whose_move]):
@@ -130,7 +139,22 @@ def generate_moves(currentState):
                             new_board_state[int(row + op[0] / 2)][int(col + op[1] / 2)] = '-'
                             possible_moves.append([((row, col),(row_temp, col_temp)),
                                                     BC.BC_state(new_board_state, 1 - whose_move)])
+                elif (piece.lower() == 'f' and next_to_imitator(board_list, row, col)):
+                    current_ops = operators[board_list[row][col].lower()]
+                    for op in current_ops:
+                        row_temp = row
+                        col_temp = col
+                        while can_move(row_temp, col_temp, op, board_list):
+                            row_temp += op[0]
+                            col_temp += op[1]
+                            #ending_square = index_to_notation(row_temp, col_temp)
+                            new_board_state = [r[:] for r in board_list]
+                            new_board_state[row_temp][col_temp] = new_board_state[row][col]
+                            new_board_state[row][col] = '-'
+                    possible_moves.append([((row, col),(row_temp, col_temp)),
+                                                    BC.BC_state(new_board_state, 1 - whose_move)])
                 elif (piece.lower() != 'i' 
+                    and piece.lower() != 'f'
                     and piece in pieces[whose_move]):
                     current_ops = operators[board_list[row][col].lower()]
                     for op in current_ops:
@@ -156,6 +180,7 @@ def generate_moves(currentState):
 
                                 for captured in capture:
                                     new_board_state[captured[0]][captured[1]] = '-'
+                            
                             possible_moves.append([((row, col),(row_temp, col_temp)),
                                                     BC.BC_state(new_board_state, 1 - whose_move)])
                 elif (piece.lower() == 'i' 
@@ -245,14 +270,14 @@ def coordinator_capturable(c_new_row, c_new_col, new_board_list, whose_move):
     #else:
     #    kings_row = king_position[whose_move][0]
     #    kings_col = king_position[whose_move][1]
-    if c_new_col == kings_col and c_new_row == kings_row:
-        return capturable
-    if (new_board_list[kings_row][c_new_col] != '-'
-       and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
-        capturable.append([kings_row, c_new_col])
-    if (new_board_list[c_new_row][kings_col] != '-'
-       and new_board_list[c_new_col][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
-        capturable.append([c_new_col, kings_col])
+    if c_new_col != kings_col and c_new_row != kings_row:
+        #return capturable
+        if (new_board_list[kings_row][c_new_col] != '-'
+        and new_board_list[kings_row][c_new_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
+            capturable.append([kings_row, c_new_col])
+        if (new_board_list[c_new_row][kings_col] != '-'
+        and new_board_list[c_new_col][kings_col].isupper() != new_board_list[c_new_row][c_new_col].isupper()):
+            capturable.append([c_new_col, kings_col])
     #print(capturable)
     return capturable
 

@@ -1,6 +1,5 @@
 '''Nick_Monsees_BC_Player.py
-Written by Jeffrey Gao (jgao117@uw.edu) and
-Ben Yan (yanb3@uw.edu).
+Written by Jeffrey Gao (jgao117@uw.edu) and Ben Yan (yanb3@uw.edu).
 
 '''
 
@@ -23,7 +22,6 @@ remarks = ['Really now?', 'Is that all you\'ve got?', 'Are you sure about that m
            'You sure you don\'t want to take that back?', 'Who taught you how to play?', 'Did you miss a move?', 'What do you think about this?',
             'Don\'t you just love this game?', 'How are you feeling about this move?']
 
-states_evaluated = 0
 operators = {'p':[(1,0),(0,1),(-1,0),(0,-1)],  # pawn
              'l':[(2,0),(0,2),(-2,0),(0,-2)],  # long leaper
              'i':[],  # imitator (1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1),(2,0),(0,2),(-2,0),(0,-2)
@@ -59,8 +57,8 @@ def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEv
         output['CURRENT_STATE_STATIC_EVAL'] = basicStaticEval(bestMove[1])
     elif useZobristHashing:
         pass  # temporary
-    output['N_STATES_EXPANDED'] = bestMove[2]
-    output['N_STATIC_EVALS'] = bestMove[3]
+    output['N_STATES_EXPANDED'] = states_expanded
+    output['N_STATIC_EVALS'] = states_evaluated
     output['N_CUTOFFS'] = 0
     return output
 
@@ -288,8 +286,12 @@ def minimax(ply, stateList):
 def alphabeta_pruning(ply, stateList, alpha, beta, start_time):
     if time.time() - start_time > 0.9:
         return
+    global states_expanded
+    states_expanded += 1
     currentState = stateList[1]
     if ply == 0:
+        global states_evaluated
+        states_evaluated += 1
         return [staticEval(currentState), stateList]
     start_time = time.time()
     newMoves = generate_moves(currentState)
@@ -333,6 +335,10 @@ def makeMove(currentState, currentRemark, timelimit=1):
             translated_board[r][c] = BC.CODE_TO_INIT[translated_board[r][c]]
     newCurrentState = BC.BC_state(translated_board, currentState.whose_move)
 
+    global states_expanded
+    states_expanded = 0
+    global states_evaluated
+    states_evaluated = 0
     start_time = time.time()
     ply = 1
     best_move = [0, [((), ()), currentState, 0, 0]]
@@ -360,6 +366,7 @@ def makeMove(currentState, currentRemark, timelimit=1):
 
     # Make up a new remark
     newRemark = random.choice(remarks)
+    print("states expanded: " + str(states_expanded))
     print("states evaluated: "  + str(states_evaluated))
     return [[move, newState], newRemark]
 

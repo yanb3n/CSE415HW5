@@ -81,6 +81,14 @@ def next_to_imitator(board_list, row, col):
                 return True
     return False
 
+def next_to_piece(board_list, row, col, piece):
+    for op in [(1,1),(-1,-1),(1,0),(0,1),(-1,0),(0,-1),(1,-1),(-1,1)]:
+        if ((row + op[0] >= 0) and (row + op[0] < 8) and (col + op[1] >= 0)
+           and (col + op[1] < 8)):
+            if (board_list[row + op[0]][col + op[1]].isupper() != board_list[row][col].isupper() and
+                    board_list[row + op[0]][col + op[1]].lower() == piece):
+                return True
+    return False
 def generate_moves(currentState):
     board_list = currentState.board  # list of current board positions in row-major order
     whose_move = currentState.whose_move

@@ -7,7 +7,7 @@ import BC_state_etc as BC
 import time
 import random
 
-global output
+output = {}
 WHITE = 1
 BLACK = 0
 PAWN = 0
@@ -48,6 +48,7 @@ flatten = lambda l: [item for sublist in l for item in sublist]
 def parameterized_minimax(currentState, alphaBeta=False, ply=3, useBasicStaticEval=True, useZobristHashing=False):
     '''Implement this testing function for your agent's basic
     capabilities here.'''
+    global output
     best_move = [0, [((), ()), currentState, 0, 0]]
     if alphaBeta:
         bestMove = alphabeta_pruning(ply, [[((), ()), currentState], 'remark'], float('inf'), float('-inf'))[1]

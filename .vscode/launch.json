@@ -4,13 +4,18 @@
     // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
     "version": "0.2.0",
     "configurations": [
-
-
+        {
+            "name": "Python: Current File",
+            "type": "python",
+            "request": "launch",
+            "program": "${file}",
+            "console": "integratedTerminal"
+        },
         {
             "name": "Run Game",
             "type": "python",
             "request": "launch",
-            "program": "C:\\Users\\Ben\\Documents\\CS415HW\\HW5\\CSE415HW5\\BaroqueGameMaster_V02.py",
+            "program": "${workspaceFolder}\\BaroqueGameMaster_V02.py",
             "console": "integratedTerminal"
         }
     ]
